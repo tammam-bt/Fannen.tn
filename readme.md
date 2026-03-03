@@ -94,7 +94,7 @@ As this is an academic project currently focused on frontend structure and desig
 
 1. **Clone the repository**
    ```bash
-   git clone [https://github.com/yourusername/fannen.tn.git](https://github.com/yourusername/fannen.tn.git)
+   git clone [https://github.com/tammam-bt/fannen.tn.git](https://github.com/tammam-bt/fannen.tn.git)
    cd fannen.tn
    ```
 2. **Navigate to the source files**
