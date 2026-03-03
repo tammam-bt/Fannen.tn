@@ -201,17 +201,8 @@ ul {
   z-index: 100;
 }
 
-.navbar-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-heading);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-terracotta);
-}
 .navbar-logo img {
-  height: 24px;
+  height: 5vh;
 }
 
 .navbar-nav {
@@ -271,7 +262,7 @@ ul {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--spacing-lg);
   margin-top: var(--spacing-xl);
-  padding-bottom: var(--spacing-xxl);
+  margin-bottom: var(--spacing-lg);
 }
 
 .artwork-card {
