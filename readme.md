@@ -76,11 +76,10 @@ This project strictly adheres to a foundational web development stack to demonst
 
 As this is an academic project currently focused on frontend structure and design, a live interactive demo is not yet available. However, you can explore the design language and intended structure:
 
-### 🚀 Option 1: View Design Assets (Recommended)
+### 🚀 Option 1: Explore the live demo (Recommended)
 **Explore the envisioned user interface immediately!**
 
-- [![Visit Fannen.tn Design Gallery](https://img.shields.io/badge/🎨_View_UI_Mockups-D8603B?style=for-the-badge&logoColor=white)](URL_TO_YOUR_VISILY_OR_FIGMA_PROJECT_IF_PUBLIC)
-- Review the `Resources/img/` folder in this repository to see intended layout structures for key pages.
+- [![Visit Fannen.tn Design Gallery](https://img.shields.io/badge/Visit_Live_URL-D8603B?style=for-the-badge&logoColor=white)](https://roaring-cendol-b1e95b.netlify.app/src/index.html)
 
 ---
 
