@@ -1,0 +1,20 @@
+[
+    {
+        "id": "msg-501",
+        "senderId": "user-anonymous",
+        "receiverId": "user-99",
+        "artworkId": "art-001",
+        "content": "Is this piece available for custom engraving?",
+        "status": "unread",
+        "timestamp": "2024-03-21T14:15:00Z"
+    },
+    {
+        "id": "msg-502",
+        "senderId": "user-anonymous",
+        "receiverId": "user-100",
+        "artworkId": "art-002",
+        "content": "I would love to purchase this vase. Do you ship to Europe?",
+        "status": "read",
+        "timestamp": "2024-03-22T09:00:00Z"
+    }
+]
