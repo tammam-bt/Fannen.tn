@@ -79,55 +79,8 @@
             <h2 class="font-heading" style="font-size: 2.5rem; margin-bottom: var(--spacing-xl);">Meet the Architects
             </h2>
 
-            <div class="grid grid-cols-3 gap-xl">
-                <!-- Team Member 1 -->
-                <article class="artwork-card">
-                    <div class="artwork-img-box">
-                        <img src="../../Resources/img/Tammam BenBettayeb Picture.jpg"
-                            alt="The Architect" style="object-fit: cover; aspect-ratio: 1/1;">
-                    </div>
-                    <div class="artwork-content text-left" style="padding: var(--spacing-md);">
-                        <h3 class="artwork-title">The Architect</h3>
-                        <p class="text-terracotta text-sm font-bold"
-                            style="text-transform: uppercase; margin-bottom: 0.5rem;">Data Structures & Backend</p>
-                        <p class="text-sm">Mastering the logic behind the beauty. The Architect ensures that every
-                            artisan's portfolio is securely managed and every transaction flows seamlessly through our
-                            Native PHP foundation.</p>
-                    </div>
-                </article>
-
-                <!-- Team Member 2 -->
-                <article class="artwork-card">
-                    <div class="artwork-img-box">
-
-                        <img src="../../Resources/img/Farouk Tounakti Picture.jpg"
-                            alt="The Designer" style="object-fit: cover; aspect-ratio: 1/1;">
-                    </div>
-                    <div class="artwork-content text-left" style="padding: var(--spacing-md);">
-                        <h3 class="artwork-title">The Designer</h3>
-                        <p class="text-terracotta text-sm font-bold"
-                            style="text-transform: uppercase; margin-bottom: 0.5rem;">Aesthetics & UX</p>
-                        <p class="text-sm">Guardian of the visual soul. The Designer weaves the digital tapestry of
-                            Fannen.tn, ensuring the interface honors the profound beauty of Maghrebian craftsmanship.
-                        </p>
-                    </div>
-                </article>
-
-                <!-- Team Member 3 -->
-                <article class="artwork-card">
-                    <div class="artwork-img-box">
-                            <img src = "../../Resources/img/Zineddine BelhaAjli Picture.jpg"
-                            alt="The Integrator" style="object-fit: cover; aspect-ratio: 1/1;">
-                    </div>
-                    <div class="artwork-content text-left" style="padding: var(--spacing-md);">
-                        <h3 class="artwork-title">The Integrator</h3>
-                        <p class="text-terracotta text-sm font-bold"
-                            style="text-transform: uppercase; margin-bottom: 0.5rem;">Vanilla JS & DOM</p>
-                        <p class="text-sm">Wizard of interaction. The Integrator breathes life into static designs,
-                            connecting the rigid logic of the backend to the fluid experience of the frontend with pure
-                            code.</p>
-                    </div>
-                </article>
+            <div class="grid grid-cols-3 gap-xl" id="team-grid-container">
+                <!-- Dynamically populated from team.json -->
             </div>
 
             <div style="margin-top: var(--spacing-xl);">
@@ -184,6 +137,7 @@
     </footer>
 
     <script src="../js/main.js"></script>
+    <script src="../js/components/about.js"></script>
 </body>
 
 </html>

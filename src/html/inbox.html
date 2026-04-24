@@ -82,51 +82,8 @@
                     </form>
                 </div>
 
-                <div class="overflow-y-auto" style="flex:1; overflow-y: auto;">
-                    <!-- Conversation Item -->
-                    <div class="conversation-item active" id="conv-leila">
-                        <img src="https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHBlcnNvbnxlbnwwfHwwfHx8MA%3D%3D"
-                            alt="Leila" class="avatar">
-                        <div style="flex:1;">
-                            <div class="flex justify-between items-center" style="margin-bottom: 0.25rem;">
-                                <strong class="text-sm font-bold">Leila Ben Salem</strong>
-                                <span class="text-xs text-text-lighter" style="font-size: 0.75rem;">2 min ago</span>
-                            </div>
-                            <p class="text-sm text-text-light"
-                                style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">
-                                I absolutely love the detail on the neck.</p>
-                        </div>
-                        <span class="badge"
-                            style="position:static; margin: auto 0; padding: 0.25rem 0.5rem; font-size: 0.65rem;">2</span>
-                    </div>
-
-                    <div class="conversation-item" id="conv-omar">
-                        <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cGVyc29ufGVufDB8fDB8fHww"
-                            alt="Omar" class="avatar">
-                        <div style="flex:1;">
-                            <div class="flex justify-between items-center" style="margin-bottom: 0.25rem;">
-                                <strong class="text-sm font-bold">Omar Farhat</strong>
-                                <span class="text-xs text-text-lighter" style="font-size: 0.75rem;">1 hour ago</span>
-                            </div>
-                            <p class="text-sm text-text-light"
-                                style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">
-                                Perfect, I will wait for the dimensions.</p>
-                        </div>
-                    </div>
-
-                    <div class="conversation-item" id="conv-sarah">
-                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGVyc29ufGVufDB8fDB8fHww"
-                            alt="Sarah" class="avatar">
-                        <div style="flex:1;">
-                            <div class="flex justify-between items-center" style="margin-bottom: 0.25rem;">
-                                <strong class="text-sm font-bold">Sarah Miller</strong>
-                                <span class="text-xs text-text-lighter" style="font-size: 0.75rem;">3 hours ago</span>
-                            </div>
-                            <p class="text-sm text-text-light"
-                                style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">
-                                Can you do a set of four?</p>
-                        </div>
-                    </div>
+                <div class="overflow-y-auto" id="conversation-list-container" style="flex:1; overflow-y: auto;">
+                    <!-- Dynamically populated from conversations.json -->
                 </div>
             </div>
 
@@ -166,30 +123,7 @@
 
                 <div class="chat-messages" id="chat-messages-container">
                     <div class="text-center" style="margin-bottom: 2rem;">
-                        <span
-                            style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--color-text-lighter); letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); padding-bottom: 0.25rem;">Today</span>
-                    </div>
-
-                    <!-- Received Message -->
-                    <div class="message-bubble message-received">
-                        <p>Hello! I saw your Blue Mosaic Amphora at the gallery.</p>
-                        <div class="text-right text-text-lighter" style="font-size: 0.7rem; margin-top: 0.25rem;">10:30
-                            AM</div>
-                    </div>
-
-                    <!-- Sent Message -->
-                    <div class="message-bubble message-sent">
-                        <p>Hi Leila! Thank you for the kind words. It's one of my favorite pieces.</p>
-                        <div class="text-right"
-                            style="font-size: 0.7rem; margin-top: 0.25rem; color: rgba(255,255,255,0.8);">10:35 AM
-                            &check;&check;</div>
-                    </div>
-
-                    <!-- Received Message -->
-                    <div class="message-bubble message-received">
-                        <p>I absolutely love the detail on the neck. Is it available for shipping to Sousse?</p>
-                        <div class="text-right text-text-lighter" style="font-size: 0.7rem; margin-top: 0.25rem;">10:38
-                            AM</div>
+                        <span style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--color-text-lighter); letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); padding-bottom: 0.25rem;">Select a conversation</span>
                     </div>
                 </div>
 

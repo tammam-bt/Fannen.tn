@@ -11,6 +11,9 @@
             "count": 42,
             "badges": ["Creative", "Authentic"]
         },
+        "status": "Published",
+        "views": "1.2k",
+        "dateAdded": "Oct 12, 2023",
         "timestamp": "2024-03-20T10:30:00Z"
     },
     {
@@ -25,6 +28,9 @@
             "count": 124,
             "badges": ["Inspiring", "Masterpiece"]
         },
+        "status": "Published",
+        "views": "840",
+        "dateAdded": "Nov 05, 2023",
         "timestamp": "2024-03-21T10:30:00Z"
     },
     {
@@ -39,6 +45,9 @@
             "count": 89,
             "badges": ["Authentic"]
         },
+        "status": "Published",
+        "views": "450",
+        "dateAdded": "Dec 01, 2023",
         "timestamp": "2024-03-22T10:30:00Z"
     },
     {
@@ -53,6 +62,9 @@
             "count": 45,
             "badges": ["Creative"]
         },
+        "status": "Draft",
+        "views": "0",
+        "dateAdded": "Jan 10, 2024",
         "timestamp": "2024-03-23T10:30:00Z"
     },
     {
@@ -67,6 +79,9 @@
             "count": 210,
             "badges": ["Masterpiece", "Authentic", "Creative"]
         },
+        "status": "Published",
+        "views": "2.1k",
+        "dateAdded": "Feb 15, 2024",
         "timestamp": "2024-03-24T10:30:00Z"
     }
 ]
