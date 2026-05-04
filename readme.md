@@ -12,7 +12,7 @@
 
 ---
 
-> 🛠️ **Current Status**: The current implementation focuses on the static HTML5 structure and CSS3 styling. **Vanilla JavaScript interactions and the Native PHP backend functionality are planned for later implementation**.
+> 🛠️ **Current Status**: The frontend is fully implemented with HTML5, CSS3, and **Vanilla JavaScript** (Phase 2 complete). JS handles dynamic gallery rendering, category filtering, Kudos interactions, role-based dashboard rendering, profile management, and messaging. **The Native PHP backend (Phase 3) is planned for future implementation**.
 
 ## 📸 Visual Showcase
 
@@ -23,10 +23,10 @@ Explore the design and user journey envisioned for Fannen.tn through these high-
 
 The homepage serves as the global discovery feed, utilizing a masonry-style grid to display uploaded artworks. It features visual category filter buttons that allow users to dynamic filter the feed (e.g., viewing only "Ceramics") without reloading the page.
 
-### 🛡️ **Authentication Hub (auth.html)**
+### 🛡️ **Authentication (signin.html & register.html)**
 *Mockup placeholder: Split-screen login/register form with role selection*
 
-The authentication interface includes toggleable login and registration forms. A critical feature here is the role selection via radio buttons, allowing users to register specifically as either an **Artisan** (content creator) or a standard **User** (browser/interactor).
+Authentication is split into two dedicated pages with a premium 50/50 split-screen layout. **Sign In** provides email, password, and role selection. **Register** collects full profile details (name, username, age, phone, email, password, role). Users are redirected based on their role — Artisans go to the Dashboard, Enthusiasts go to the Homepage.
 
 ### ⭐ **Artwork Showcase (artwork_detail.html)**
 *Mockup placeholder: Detailed view with large image, description, and Kudos badges*
@@ -38,10 +38,10 @@ This page provides a detailed view of a specific craft, featuring a large high-r
 
 Fannen.tn replaces numerical ratings with specific appreciation badges (e.g., "Incredible Technique", "Creative Idea"). Users can also click "Contact Artisan" to open a messaging form regarding a specific artwork, facilitating direct inquiries.
 
-### 📋 **Artisan Dashboard (dashboard.html)**
+### 📋 **Role-Based Dashboard (dashboard.html)**
 *Mockup placeholder: Artisan backend view with upload form and active listings*
 
-Artisans have access to a private workspace featuring an upload form for new listings (Title, Category, Description, Image) and a grid view of their own active portfolio items with Edit/Delete capabilities.
+The dashboard dynamically adapts based on the user's role. **Artisans** see analytics stats (Kudos, Views, Inquiries), a drag-and-drop upload zone, and a portfolio management table. **Enthusiasts** see their profile details, saved/favorite artworks, followed artisans, and interaction history. Both roles share a profile card with inline edit functionality. Sidebar links update dynamically: "Dashboard" + "Messaging" for artisans, "Profile" + "Messaging" for enthusiasts.
 
 ### 🔍 **Messaging Inbox (inbox.html)**
 *Mockup placeholder: Two-pane communication hub layout*
@@ -50,15 +50,19 @@ The communication hub utilizes a classic two-pane layout: a conversation list on
 
 ## ✨ Key Features
 
-- 👥 **Role-Based Access Control (RBAC)** — Distinct user roles for Artisans (content management) and Users (browsing and interaction).
+- 👥 **Role-Based Dashboard Rendering** — The dashboard dynamically shows/hides sections using `.role-artisan-only` and `.role-enthusiast-only` wrapper classes, toggled via the `.hidden-role` CSS utility.
 
-- 🖼️ **Portfolio CRUD** — Artisans can completely manage their digital portfolio, including uploading high-resolution images, categorizing crafts (e.g., Ceramics, Textiles), and adding detailed descriptions.
+- 🔐 **Split Authentication Flow** — Dedicated Sign In and Registration pages with full profile data capture on registration, persisted via `localStorage`.
+
+- 🖼️ **Portfolio CRUD** — Artisans can manage their digital portfolio with drag-and-drop upload, categorization, and a data table with edit/delete actions.
+
+- 👤 **Profile Management** — Editable profile card shared by both roles, with inline toggle between display and edit modes that persists changes to `localStorage`.
 
 - ⭐ **Asynchronous "Kudos" System** — A positive social reinforcement mechanism utilizing specific appreciation badges instead of 1-5 star ratings.
 
 - 💬 **Direct Messaging (Inquiry System)** — Private communication channel allowing users to send direct inquiries to Artisans regarding specific artworks.
 
-- 🌀 **Dynamic Gallery** — A masonry-style grid feed that supports filtering by category without page reloads (to be handled via JS DOM manipulation).
+- 🌀 **Dynamic Gallery** — A masonry-style grid feed with live category filtering via JS DOM manipulation, powered by `artworks.json` data.
 
 ## 🛠️ Tech Stack (Strict Constraints)
 
@@ -68,7 +72,7 @@ This project strictly adheres to a foundational web development stack to demonst
 |------------|---------|------------|
 | **HTML5** | Semantic structure | Native, semantic markup |
 | **CSS3** | Styling & Layout | Native CSS (Grid, Flexbox, variables, transitions). No frameworks like Tailwind |
-| **Vanilla JavaScript** | Frontend Logic | ES6+, strict DOM manipulation, Event Listeners, and Fetch API (Planned) |
+| **Vanilla JavaScript** | Frontend Logic | ES6+, DOM manipulation, Event Delegation, Fetch API, localStorage state management |
 | **Native PHP** | Backend Logic | Handling routing, form validation, file uploads, and session management (Planned) |
 | **SQL (MySQL/PostgreSQL)** | Database | Normalized relational structure. Must use prepared statements (PDO) (Planned) |
 
@@ -100,10 +104,11 @@ As this is an academic project currently focused on frontend structure and desig
    ```bash
    cd src
    ```
-Open index.html
-Double-click index.html to open it directly in your web browser. You can navigate between the existing static pages using the links in the header.
+3. **Open index.html**
 
-**💡 Development Note**: Interactivity requiring JavaScript (filtering, Kudos updates) and backend functionality (login, uploads, messaging) are not yet implemented in the codebase.
+   Open `index.html` with a live server (e.g., VS Code Live Server extension) or double-click to open directly in your browser. You can navigate between pages using the header links.
+
+**💡 Development Note**: All JavaScript interactivity (gallery filtering, Kudos, authentication, profile management, messaging) is fully implemented. Backend functionality (PHP/MySQL) is planned for Phase 3.
 
 ### 📁 Project Structure
 Fannen.tn is organized with a clear separation between raw resources and the main application source code.
@@ -118,26 +123,48 @@ Fannen.tn is organized with a clear separation between raw resources and the mai
 │   ├── index.html                     # Global Feed / Discovery page (Level 1)
 │   │
 │   ├── 📄 html/                       # Secondary HTML pages (Level 2)
-│   │   ├── auth.html                  # Authentication Hub
+│   │   ├── signin.html                # Sign In (split-screen layout)
+│   │   ├── register.html              # Registration (full profile form)
 │   │   ├── artwork_detail.html        # Detailed Showcase
-│   │   ├── dashboard.html             # Artisan Workspace
-│   │   └── inbox.html                 # Communication Hub
+│   │   ├── dashboard.html             # Role-Based Workspace (Artisan / Enthusiast)
+│   │   ├── inbox.html                 # Communication Hub
+│   │   └── our_story.html             # Our Story page
 │   │
-│   └── 🎨 css/                        # Stylesheets
-│       └── styles.css                 # Centralized global styles (vars, grid, flex)
+│   ├── 🎨 css/                        # Stylesheets
+│   │   └── styles.css                 # Centralized global styles (+.hidden-role utility)
+│   │
+│   └── ⚡ js/                         # JavaScript Modules
+│       ├── main.js                    # Global UI (navbar auth state, image fallbacks)
+│       ├── components/                # Page-specific logic
+│       │   ├── auth.js                # Sign in & registration handlers
+│       │   ├── gallery.js             # Gallery rendering & category filtering
+│       │   ├── dashboard.js           # Role-based rendering, profile management
+│       │   ├── inbox.js               # Messaging & conversation management
+│       │   └── interaction.js         # Artwork detail, kudos, inquiry modal
+│       └── data/                      # Mock JSON databases
+│           ├── artworks.json          # Artwork catalog
+│           ├── conversations.json     # Conversation list
+│           └── messages.json          # Chat messages
 │
 └── 📄 README.md                       # Project documentation
 ```
-### 🔄 Planned Workflow Overview (Mental Model)
-**`index.html`** (JS) → Fetches artworks via API → Renders Masonry Grid
+### 🔄 Current Workflow Overview
+**`index.html`** → `gallery.js` fetches `artworks.json` → Renders masonry grid → Category filtering via event delegation
 
-**`auth.html`** (Backend) → Validates inputs → Hashes passwords → Initiates $_SESSION
+**`signin.html / register.html`** → `auth.js` saves auth state & profile to `localStorage` → Redirects by role
 
-**`artwork_detail.html`** (Fetch API) → Updates Kudos count asynchrounously
+**`artwork_detail.html`** → `interaction.js` handles Kudos badges & inquiry modal → Saves messages to `localStorage`
 
-**`dashboard.html`** (PHP) → Handles multipart/form-data for file uploads → Executes INSERT queries
+**`dashboard.html`** → `dashboard.js` checks auth → Toggles `.hidden-role` on role sections → Profile card display/edit
 
-**`inbox.html`** (SQL) → Queries messages table based on session ID
+**`inbox.html`** → `inbox.js` fetches `conversations.json` + `messages.json` → Renders two-pane chat UI
+
+### 🔮 Planned Backend Workflow (Phase 3)
+**`auth`** (PHP) → Validates inputs → Hashes passwords → Initiates `$_SESSION`
+
+**`dashboard`** (PHP) → Handles `multipart/form-data` for file uploads → Executes INSERT queries
+
+**`inbox`** (SQL) → Queries messages table based on session ID
 
 ### 🚀 Skills Developed
 This project provides hands-on experience with:
