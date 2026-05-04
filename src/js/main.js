@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function isLevel2() {
-    return window.location.pathname.includes('/html/');
+    return window.location.pathname.toLowerCase().includes('/html/');
 }
 
 function initNavbar() {
@@ -14,8 +14,21 @@ function initNavbar() {
     const nav = document.querySelector('.navbar-nav');
     if (!nav) return;
 
-    const loginLink = Array.from(nav.querySelectorAll('a')).find(a => a.textContent.includes('Login') || a.textContent.includes('Connexion'));
-    const joinLink = Array.from(nav.querySelectorAll('a')).find(a => a.textContent.includes('Join') || a.textContent.includes('S\'inscrire'));
+    // Find links by href or text to be more robust
+    const links = Array.from(nav.querySelectorAll('a'));
+    const loginLink = links.find(a => 
+        a.textContent.includes('Login') || 
+        a.textContent.includes('Connexion') || 
+        a.textContent.includes('Profile') || 
+        a.textContent.includes('Dashboard') ||
+        a.href.includes('signin.html')
+    );
+    const joinLink = links.find(a => 
+        a.textContent.includes('Join') || 
+        a.textContent.includes('S\'inscrire') || 
+        a.textContent.includes('Logout') ||
+        a.href.includes('register.html')
+    );
 
     if (authState.isLoggedIn) {
         if (loginLink) {
@@ -28,11 +41,26 @@ function initNavbar() {
             joinLink.classList.remove('btn-primary');
             joinLink.classList.add('btn-outline');
             joinLink.href = '#';
-            joinLink.addEventListener('click', (e) => {
+            
+            // Remove existing listener if any and add new one
+            joinLink.onclick = (e) => {
                 e.preventDefault();
                 localStorage.removeItem('fannen_auth_state');
                 window.location.href = isLevel2() ? '../index.html' : 'index.html';
-            });
+            };
+        }
+    } else {
+        // Ensure links are correct for logged out state if they were previously modified
+        if (loginLink && (loginLink.textContent === 'Profile' || loginLink.textContent === 'Dashboard')) {
+            loginLink.textContent = 'Login';
+            loginLink.href = isLevel2() ? 'signin.html' : 'html/signin.html';
+        }
+        if (joinLink && joinLink.textContent === 'Logout') {
+            joinLink.textContent = 'Join Fannen';
+            joinLink.classList.add('btn-primary');
+            joinLink.classList.remove('btn-outline');
+            joinLink.href = isLevel2() ? 'register.html' : 'html/register.html';
+            joinLink.onclick = null;
         }
     }
 }

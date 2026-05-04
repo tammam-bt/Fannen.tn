@@ -3,9 +3,133 @@ document.addEventListener('DOMContentLoaded', () => {
     const authStateStr = localStorage.getItem('fannen_auth_state');
     const authState = authStateStr ? JSON.parse(authStateStr) : { isLoggedIn: false, role: 'user' };
 
-    if (!authState.isLoggedIn || authState.role !== 'artisan') {
-        window.location.href = 'auth.html';
+    if (!authState.isLoggedIn) {
+        window.location.href = 'signin.html';
         return; // Stop execution
+    }
+
+    // Role-based Section Toggling
+    const artisanSections = document.querySelectorAll('.role-artisan-only');
+    const enthusiastSections = document.querySelectorAll('.role-enthusiast-only');
+
+    if (authState.role === 'artisan') {
+        enthusiastSections.forEach(el => el.classList.add('hidden-role'));
+        artisanSections.forEach(el => el.classList.remove('hidden-role'));
+    } else {
+        // Enthusiast (user) view
+        artisanSections.forEach(el => el.classList.add('hidden-role'));
+        enthusiastSections.forEach(el => el.classList.remove('hidden-role'));
+
+        // Update titles for Enthusiast
+        const studioTitle = document.querySelector('.dashboard-header h1');
+        const studioSubtitle = document.querySelector('.dashboard-header p');
+        if (studioTitle) studioTitle.textContent = 'My Profile';
+        if (studioSubtitle) studioSubtitle.textContent = 'Manage your account and view your activities.';
+        
+        // Rename sidebar link text from "Dashboard" to "Profile"
+        const navDashboardText = document.getElementById('nav-dashboard-text');
+        if (navDashboardText) navDashboardText.textContent = 'Profile';
+
+        // Rename profile card heading
+        const profileCardHeading = document.querySelector('.profile-card h2');
+        if (profileCardHeading) profileCardHeading.textContent = 'Profile Details';
+    }
+
+    // Profile Management Logic
+    const profileDisplay = document.getElementById('profile-display');
+    const profileEditForm = document.getElementById('profile-edit-form');
+    const btnEditProfile = document.getElementById('btn-edit-profile');
+    
+    // Default user data in case localStorage is empty
+    let userData = JSON.parse(localStorage.getItem('fannen_user_profile')) || {
+        fullname: 'New User',
+        username: 'user_' + authState.userId.split('-')[1],
+        age: '--',
+        phone: '--',
+        email: 'user@example.tn',
+        role: authState.role // Use the role from auth state!
+    };
+    
+    // Always sync role from auth state to profile data
+    userData.role = authState.role;
+
+    function renderProfileDisplay() {
+        if (!profileDisplay) return;
+        profileDisplay.innerHTML = `
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Full Name</p>
+                <p style="font-weight: 500;">${userData.fullname}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Username</p>
+                <p style="font-weight: 500;">@${userData.username}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Age</p>
+                <p style="font-weight: 500;">${userData.age}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Phone</p>
+                <p style="font-weight: 500;">${userData.phone}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Email</p>
+                <p style="font-weight: 500;">${userData.email}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Role</p>
+                <p style="font-weight: 500; text-transform: capitalize;">${userData.role}</p>
+            </div>
+        `;
+    }
+
+    if (profileDisplay && profileEditForm && btnEditProfile) {
+        renderProfileDisplay();
+
+        let isEditMode = false;
+
+        btnEditProfile.addEventListener('click', () => {
+            if (!isEditMode) {
+                // Switch to edit mode
+                isEditMode = true;
+                btnEditProfile.textContent = 'Save Changes';
+                btnEditProfile.classList.remove('btn-outline');
+                btnEditProfile.classList.add('btn-primary');
+                btnEditProfile.style.backgroundColor = 'var(--color-terracotta)';
+                btnEditProfile.style.color = '#fff';
+
+                // Populate form
+                document.getElementById('edit-fullname').value = userData.fullname;
+                document.getElementById('edit-username').value = userData.username;
+                document.getElementById('edit-age').value = userData.age;
+                document.getElementById('edit-phone').value = userData.phone;
+                document.getElementById('edit-email').value = userData.email;
+
+                profileDisplay.style.display = 'none';
+                profileEditForm.style.display = 'block';
+            } else {
+                // Save changes
+                isEditMode = false;
+                btnEditProfile.textContent = 'Edit Profile';
+                btnEditProfile.classList.remove('btn-primary');
+                btnEditProfile.classList.add('btn-outline');
+                btnEditProfile.style.backgroundColor = 'transparent';
+                btnEditProfile.style.color = 'var(--color-charcoal)';
+
+                userData.fullname = document.getElementById('edit-fullname').value;
+                userData.username = document.getElementById('edit-username').value;
+                userData.age = document.getElementById('edit-age').value;
+                userData.phone = document.getElementById('edit-phone').value;
+                userData.email = document.getElementById('edit-email').value;
+
+                localStorage.setItem('fannen_user_profile', JSON.stringify(userData));
+
+                renderProfileDisplay();
+
+                profileEditForm.style.display = 'none';
+                profileDisplay.style.display = 'grid';
+            }
+        });
     }
 
     // Drag and Drop Upload UI Mock
@@ -139,6 +263,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 300);
                 }
             }
+        });
+    }
+
+    // Sign Out Logic for Dashboard Sidebar
+    const btnSignout = document.getElementById('btn-signout');
+    if (btnSignout) {
+        btnSignout.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('fannen_auth_state');
+            window.location.href = 'signin.html';
         });
     }
 });

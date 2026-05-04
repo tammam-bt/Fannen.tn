@@ -3,9 +3,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const authStateStr = localStorage.getItem('fannen_auth_state');
     const authState = authStateStr ? JSON.parse(authStateStr) : { isLoggedIn: false, role: 'user' };
 
-    if (!authState.isLoggedIn || authState.role !== 'artisan') {
-        window.location.href = 'auth.html';
+    if (!authState.isLoggedIn) {
+        window.location.href = 'signin.html';
         return;
+    }
+
+    // Update sidebar text for Enthusiast
+    if (authState.role === 'user') {
+        const navDashboardText = document.getElementById('nav-dashboard-text');
+        if (navDashboardText) navDashboardText.textContent = 'Profile';
     }
 
     const chatForm = document.getElementById('chat-input-form');
