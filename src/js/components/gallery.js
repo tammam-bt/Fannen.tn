@@ -6,8 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let allArtworks = [];
 
+    function getApiBase() {
+        return window.location.pathname.toLowerCase().includes('/php/') ? '../api/' : 'api/';
+    }
+
     // Fetch artworks
-    fetch('js/data/artworks.json')
+    fetch(getApiBase() + 'api_get_artworks.php')
         .then(response => response.json())
         .then(data => {
             allArtworks = data;
@@ -56,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isFeatured = index === 0 ? '<span class="badge">Featured</span>' : '';
             return `
                 <article class="artwork-card" data-category="${art.category}">
-                    <a href="html/artwork_detail.html?id=${art.id}">
+                    <a href="php/artwork_detail.php?id=${art.id}">
                         <div class="artwork-img-box">
                             ${isFeatured}
                             <img src="${art.image}" alt="${art.title}" loading="lazy">

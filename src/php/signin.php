@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fannen.tn - Sign In</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+    <div class="auth-layout">
+        <!-- Left Side: Branding Hero -->
+        <div class="auth-hero">
+            <img src="https://images.unsplash.com/photo-1563837738662-c86ef2ba99f8?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                alt="Master artisan crafting ceramics">
+            <div class="auth-hero-overlay">
+                <span class="badge"
+                    style="position: static; display: inline-block; margin-bottom: 1rem; background: rgba(255,255,255,0.2); backdrop-filter: blur(4px);">
+                    <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"
+                        style="display:inline; vertical-align:middle;">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Verified Tunisian Artisans
+                </span>
+                <h1 class="font-heading">Crafting the soul of Tunisia, one piece at a time.</h1>
+                <p style="color: #EEEEEE;">Fannen.tn connects the world to the timeless beauty of Mediterranean heritage
+                    through the hands of master craftsmen.</p>
+                <div class="flex gap-lg" style="margin-top: 2rem;">
+                    <div>
+                        <strong style="font-size: 1.5rem; display: block; color: #FFF;">500+</strong>
+                        <span style="font-size: 0.75rem; text-transform: uppercase;">Master Artisans</span>
+                    </div>
+                    <div>
+                        <strong style="font-size: 1.5rem; display: block; color: #FFF;">12k+</strong>
+                        <span style="font-size: 0.75rem; text-transform: uppercase;">Handcrafted Works</span>
+                    </div>
+                </div>
+            </div>
+            <div style="position: absolute; bottom: 2rem; left: 2rem; color: #FFF; font-size: 0.875rem; z-index: 10;">
+                &copy; 2024 Fannen.tn. Supporting Tunisian craftsmanship.
+            </div>
+        </div>
+
+        <!-- Right Side: Forms -->
+        <div class="auth-form-side">
+            <a href="../index.php">
+                <div class="navbar-logo">
+                    <img src="../../Resources/logo/logo.svg" alt="Fannen.tn Logo">
+                </div>
+            </a>
+
+            <div class="text-center" style="margin-bottom: 2rem;">
+                <h2 class="font-heading" style="font-size: 2.25rem; margin-bottom: 0.5rem;">Welcome Back</h2>
+                <p>Continue your journey with Tunisian artisans.</p>
+            </div>
+
+            <div class="auth-box">
+                <!-- Form Container -->
+                <div
+                    style="padding: 2rem; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: #FFF; box-shadow: var(--shadow-sm);">
+                    <h3 style="margin-bottom: 0.5rem;">Sign In</h3>
+                    <p class="text-sm" style="margin-bottom: 1.5rem;">Welcome back. Sign in with your account
+                        credentials.</p>
+
+                    <form action="#" method="POST" id="signin-form">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control"
+                                placeholder="amine@example.tn" required>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="flex justify-between items-center" style="margin-bottom: 0.375rem;">
+                                <label for="password" class="form-label" style="margin-bottom: 0;">Password</label>
+                                <a href="#" class="text-link text-sm">Forgot password?</a>
+                            </div>
+                            <input type="password" id="password" name="password" class="form-control"
+                                placeholder="••••••••" required>
+                        </div>
+
+                        <div id="auth-error" style="display:none; color: red; font-size: 0.875rem; margin-bottom: 1rem;"></div>
+
+                        <button type="submit" class="btn btn-primary"
+                            style="width: 100%; background-color: var(--color-terracotta);" id="btn-submit-signin">
+                            Sign In &rarr;
+                        </button>
+                    </form>
+                </div>
+
+                <div class="text-center" style="margin-top: 2rem; font-size: 0.875rem;">
+                    New here? <a href="register.php" class="text-link" style="color: var(--color-terracotta);">Create
+                        an account &rarr;</a>
+                </div>
+
+                <div class="text-center" style="margin-top: 1rem; font-size: 0.875rem;">
+                    Just want to browse? <a href="../index.php" class="text-link"
+                        style="color: var(--color-charcoal);">Go
+                        to Gallery &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/main.js"></script>
+    <script src="../js/components/auth.js"></script>
+</body>
+
+</html>

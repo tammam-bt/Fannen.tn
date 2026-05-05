@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Dashboard - Fannen.tn</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+
+    <!-- Top Navbar for Dashboard -->
+    <header class="navbar" style="padding: 0.75rem var(--spacing-lg);">
+        <a href="../index.php">
+            <div class="navbar-logo">
+                <img src="../../Resources/logo/logo.svg" alt="Fannen.tn Logo">
+            </div>
+        </a>
+        <div class="flex items-center gap-md">
+            <button class="btn btn-ghost" aria-label="Notifications" id="btn-notifications">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                    </path>
+                </svg>
+            </button>
+            <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cGVyc29ufGVufDB8fDB8fHww"
+                alt="User Avatar" class="avatar" style="width: 36px; height: 36px;">
+        </div>
+    </header>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <a href="dashboard.php" class="sidebar-link active" id="nav-works">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                        </path>
+                    </svg>
+                    <span id="nav-dashboard-text">Dashboard</span>
+                </a>
+                <a href="inbox.php" class="sidebar-link" id="nav-messages">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                        </path>
+                    </svg>
+                    <span id="nav-messaging-text">Messaging</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="sidebar-link" style="color: var(--color-terracotta);" id="btn-signout">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                        </path>
+                    </svg>
+                    Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <div class="dashboard-header">
+                <div>
+                    <h1 class="text-lg font-heading">The Studio</h1>
+                    <p class="text-sm">Manage your portfolio and track your cultural reach.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+
+                <!-- Profile Card -->
+                <div class="profile-card"
+                    style="background: var(--color-white); box-shadow: var(--shadow-sm); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--color-border);">
+                    <div class="flex justify-between items-center"
+                        style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+                        <h2 class="font-bold text-lg">Artisan Profile</h2>
+                        <button class="btn btn-outline" id="btn-edit-profile">Edit Profile</button>
+                    </div>
+                    <div id="profile-display" class="grid"
+                        style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                        <!-- Display mode (populated by JS) -->
+                    </div>
+                    <form id="profile-edit-form" style="display: none;">
+                        <div class="grid"
+                            style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="edit-fullname" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Username</label>
+                                <input type="text" id="edit-username" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Age</label>
+                                <input type="number" id="edit-age" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" id="edit-phone" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="edit-email" class="form-control" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Stats Row (Artisan Only) -->
+                <div class="role-artisan-only">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold" style="text-transform: uppercase;">Total Kudos</p>
+                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-charcoal);">1,482 <span
+                                        class="text-sm text-text-light" style="font-weight: 400;">+12% this month</span></p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold" style="text-transform: uppercase;">Total Views</p>
+                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-charcoal);">12.5k <span
+                                        class="text-sm text-text-light" style="font-weight: 400;">+5.2% from last
+                                        week</span></p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold" style="text-transform: uppercase;">Pending Inquiries</p>
+                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-charcoal);">7</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Drag & Drop (Artisan Only) -->
+                <div class="role-artisan-only">
+                    <div class="upload-zone" id="upload-zone">
+                        <div class="modal-icon" style="margin-bottom: 0.5rem;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-heading" style="font-size: 1.25rem; margin-bottom: 0.5rem;">Upload Your New
+                            Masterpiece</h3>
+                        <p class="text-sm" style="max-width: 400px; margin: 0 auto 1.5rem;">Drag and drop high-resolution
+                            photos of your craft. For the best experience, use clear, naturally lit photos that tell a
+                            story.</p>
+                        <div class="flex justify-center gap-sm">
+                            <button class="btn btn-primary" id="btn-select-files">Select Files</button>
+                            <button class="btn btn-outline" id="btn-browse-gallery">Browse Gallery</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Portfolio Table (Artisan Only) -->
+                <div class="role-artisan-only">
+                    <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
+                        <h2 class="font-bold text-lg">Current Portfolio</h2>
+                        <a href="#" class="text-link">View All</a>
+                    </div>
+
+                    <div class="data-table-container">
+                        <table class="data-table" id="portfolio-table">
+                            <thead>
+                                <tr>
+                                    <th>Artwork</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Views</th>
+                                    <th>Date Added</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portfolio-table-body">
+                                <!-- Dynamically populated from API -->
+                            </tbody>
+                        </table>
+
+                        <div class="text-center"
+                            style="padding: 1rem; border-top: 1px solid var(--color-border); background: var(--color-bg);">
+                            <p class="text-sm text-text-light">Portfolio loaded from database.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved/Favorite Artworks (Enthusiast Only) -->
+                <div class="role-enthusiast-only">
+                    <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
+                        <h2 class="font-bold text-lg">Saved Artworks</h2>
+                        <a href="#" class="text-link">View All</a>
+                    </div>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="artwork-card">
+                            <div class="artwork-img-box" style="aspect-ratio: 1;">
+                                <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&q=80" alt="Saved Item">
+                            </div>
+                            <div class="artwork-content" style="padding: 1rem;">
+                                <h3 class="font-bold text-sm">Handwoven Berber Rug</h3>
+                                <p class="text-sm text-text-light">by Fatima Zara</p>
+                            </div>
+                        </div>
+                        <div class="artwork-card">
+                            <div class="artwork-img-box" style="aspect-ratio: 1;">
+                                <img src="https://images.unsplash.com/photo-1631125915902-d8abe9225ff2?q=80&w=400" alt="Saved Item">
+                            </div>
+                            <div class="artwork-content" style="padding: 1rem;">
+                                <h3 class="font-bold text-sm">Cerulean Oasis Vase</h3>
+                                <p class="text-sm text-text-light">by Ahmed de Nabeul</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Following List (Enthusiast Only) -->
+                <div class="role-enthusiast-only">
+                    <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
+                        <h2 class="font-bold text-lg">Following Artisans</h2>
+                        <a href="#" class="text-link">View All</a>
+                    </div>
+                    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="stat-card" style="padding: 1rem; border-radius: var(--radius-full);">
+                            <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=100&q=80" alt="Artisan" class="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <p class="font-bold text-sm">Ahmed de Nabeul</p>
+                                <p class="text-sm text-text-light">Master Ceramist</p>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem; border-radius: var(--radius-full);">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80" alt="Artisan" class="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <p class="font-bold text-sm">Fatima Zara</p>
+                                <p class="text-sm text-text-light">Textile Weaver</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interaction History (Enthusiast Only) -->
+                <div class="role-enthusiast-only">
+                    <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
+                        <h2 class="font-bold text-lg">Interaction History</h2>
+                    </div>
+                    <div class="data-table-container" style="margin-bottom: 2rem;">
+                        <div class="conversation-item" style="border-bottom: none;">
+                            <div class="stat-icon" style="background: var(--color-sand-dark); color: var(--color-charcoal); border-radius: 50%;">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-sm">Inquiry sent to Ahmed de Nabeul</p>
+                                <p class="text-sm text-text-light">"Is the Cerulean Oasis Vase still available for shipping?" <span style="margin-left: 0.5rem; font-size: 0.75rem;">2 days ago</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/components/dashboard.js"></script>
+</body>
+
+</html>

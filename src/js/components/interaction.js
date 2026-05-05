@@ -1,168 +1,271 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
+    function getApiBase() {
+        return window.location.pathname.toLowerCase().includes('/php/') ? '../api/' : 'api/';
+    }
+
+    // Get Artwork ID from URL params
     const urlParams = new URLSearchParams(window.location.search);
     const artworkId = urlParams.get('id');
-    
-    if (artworkId) {
-        fetch('../js/data/artworks.json')
-            .then(res => res.json())
-            .then(data => {
-                const artwork = data.find(a => a.id === artworkId);
-                if (artwork) {
-                    renderArtworkDetail(artwork);
-                } else {
-                    document.querySelector('.artwork-detail-layout').innerHTML = '<h2>Artwork not found.</h2>';
-                }
-            })
-            .catch(err => console.error(err));
-    }
 
-    // Modal logic for "Send an Inquiry"
-    const inquiryBtn = document.getElementById('btn-inquiry-open');
-    if (inquiryBtn) {
-        inquiryBtn.addEventListener('click', openInquiryModal);
-    }
-});
+    // Only run on artwork detail page
+    const isDetail = document.querySelector('.artwork-detail-page');
+    if (!isDetail) return;
+    
+    let currentArtwork = null;
 
-function renderArtworkDetail(artwork) {
-    // Document Title
-    document.title = `${artwork.title} - Fannen.tn`;
-    
-    // Left side image
-    const imgElement = document.querySelector('.artwork-left img');
-    if (imgElement) {
-        imgElement.src = artwork.image.includes('http') ? artwork.image : `../${artwork.image}`;
-        imgElement.alt = artwork.title;
-    }
-    
-    // Artisan info
-    const artisanNameEl = document.querySelector('.artisan-info .font-bold');
-    if (artisanNameEl) artisanNameEl.textContent = artwork.artisanName;
-    
-    // Title and category
-    const titleEl = document.querySelector('.artwork-info-card h1');
-    const categoryEl = document.querySelector('.artwork-info-card .badge');
-    if (titleEl) titleEl.textContent = artwork.title;
-    if (categoryEl) categoryEl.textContent = artwork.category;
-    
-    // Description
-    const descEl = document.querySelector('.artwork-description');
-    if (descEl) {
-        descEl.innerHTML = `<p>${artwork.description}</p>`;
-    }
-    
-    // Follow button logic
-    const followBtn = document.querySelector('.artisan-profile-card .btn');
-    if (followBtn) {
-        followBtn.addEventListener('click', () => {
-            if (followBtn.textContent === 'Follow') {
-                followBtn.textContent = 'Unfollow';
-                followBtn.classList.remove('btn-outline');
-                followBtn.classList.add('btn-primary'); // or keep outline but change text
-            } else {
-                followBtn.textContent = 'Follow';
-                followBtn.classList.add('btn-outline');
-                followBtn.classList.remove('btn-primary');
-            }
-        });
-    }
-
-    // Kudos logic for all badges
-    const kudosBadges = document.querySelectorAll('.kudos-badge-item');
-    kudosBadges.forEach((badge, index) => {
-        const span = badge.querySelector('span');
-        if (!span) return;
-        
-        // Use a unique key for each badge type for localStorage
-        const storageKey = `fannen_kudos_history_${index}`;
-        
-        const history = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        if (history.includes(artwork.id)) {
-            badge.style.color = 'var(--color-terracotta)';
-        }
-        
-        badge.style.cursor = 'pointer';
-        badge.addEventListener('click', () => {
-            let hist = JSON.parse(localStorage.getItem(storageKey) || '[]');
-            let count = parseInt(span.textContent);
-            if (hist.includes(artwork.id)) {
-                hist = hist.filter(id => id !== artwork.id);
-                badge.style.color = '';
-                count--;
-            } else {
-                hist.push(artwork.id);
-                badge.style.color = 'var(--color-terracotta)';
-                count++;
-            }
-            span.textContent = count;
-            localStorage.setItem(storageKey, JSON.stringify(hist));
-        });
-    });
-}
-
-function openInquiryModal() {
-    let modal = document.querySelector('.modal-overlay');
-    
-    if (!modal) {
-        const modalHtml = `
-            <div class="modal-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-                <div class="modal-content" style="background: white; padding: 2rem; border-radius: var(--radius-md); width: 90%; max-width: 500px;">
-                    <h3 style="margin-bottom: 1rem;">Contact Artisan</h3>
-                    <div class="form-group">
-                        <label class="form-label">Message</label>
-                        <textarea id="draft-message" class="form-control" rows="5" placeholder="Draft your message..."></textarea>
-                    </div>
-                    <div class="flex gap-sm justify-between" style="margin-top: 1.5rem;">
-                        <button class="btn btn-ghost" id="btn-modal-close">Cancel</button>
-                        <button class="btn btn-primary" id="btn-modal-send">Send Inquiry</button>
-                    </div>
-                </div>
+    if (!artworkId) {
+        document.querySelector('.artwork-detail-layout').innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 0;">
+                <h2>Artwork not found</h2>
+                <a href="../index.php" class="btn btn-primary" style="margin-top: 1rem;">Back to Gallery</a>
             </div>
         `;
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-        modal = document.querySelector('.modal-overlay');
-        
-        // Restore draft
-        const draft = localStorage.getItem('fannen_draft_messages');
-        if (draft) document.getElementById('draft-message').value = draft;
-        
-        // Listeners
-        document.getElementById('draft-message').addEventListener('input', (e) => {
-            localStorage.setItem('fannen_draft_messages', e.target.value);
-        });
-        
-        document.getElementById('btn-modal-close').addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-        
-        document.getElementById('btn-modal-send').addEventListener('click', () => {
-            const content = document.getElementById('draft-message').value;
-            if (!content.trim()) return;
-            
-            // Mock sending
-            const urlParams = new URLSearchParams(window.location.search);
-            const artworkId = urlParams.get('id') || 'unknown';
-            
-            const messages = JSON.parse(localStorage.getItem('fannen_sent_messages') || '[]');
-            messages.push({
-                id: 'msg-' + Date.now(),
-                senderId: 'user-current',
-                receiverId: 'artisan-mock',
-                artworkId: artworkId,
-                content: content,
-                status: 'unread',
-                timestamp: new Date().toISOString()
-            });
-            localStorage.setItem('fannen_sent_messages', JSON.stringify(messages));
-            
-            // Clear draft and close
-            localStorage.removeItem('fannen_draft_messages');
-            document.getElementById('draft-message').value = '';
-            modal.style.display = 'none';
-            alert('Message sent successfully!');
-        });
-    } else {
-        modal.style.display = 'flex';
-        const draft = localStorage.getItem('fannen_draft_messages');
-        if (draft) document.getElementById('draft-message').value = draft;
+        return;
     }
-}
+
+    // Fetch Artwork Data from API
+    fetch(getApiBase() + 'api_get_artwork.php?id=' + artworkId)
+        .then(res => {
+            if (!res.ok) throw new Error("Artwork not found");
+            return res.json();
+        })
+        .then(art => {
+            currentArtwork = art;
+            renderArtworkDetails(art);
+        })
+        .catch(err => {
+            console.error(err);
+            document.querySelector('.artwork-detail-layout').innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 0;">
+                    <h2>Artwork not found</h2>
+                    <a href="../index.php" class="btn btn-primary" style="margin-top: 1rem;">Back to Gallery</a>
+                </div>
+            `;
+        });
+
+    function renderArtworkDetails(art) {
+        // Update document title
+        document.title = `${art.title} - Fannen.tn`;
+
+        // Update image
+        const img = document.querySelector('.artwork-left img');
+        if (img) {
+            img.src = art.image;
+            img.alt = art.title;
+        }
+
+        // Update artisan info
+        const artisanAvatar = document.querySelector('.artisan-avatar-lg');
+        const artisanName = document.querySelector('.artisan-info .font-bold');
+        if (artisanAvatar) {
+            artisanAvatar.src = art.artisanImage ? art.artisanImage : `https://ui-avatars.com/api/?name=${encodeURIComponent(art.artisanName)}&background=D8603B&color=fff&size=100`;
+        }
+        if (artisanName) artisanName.textContent = art.artisanName;
+
+        // Update artwork info
+        const badge = document.querySelector('.artwork-info-card .badge');
+        const title = document.querySelector('.artwork-info-card h1');
+        const descContainer = document.querySelector('.artwork-description');
+        
+        if (badge) badge.textContent = art.category.charAt(0).toUpperCase() + art.category.slice(1);
+        if (title) title.textContent = art.title;
+        if (descContainer) {
+            // Split description into paragraphs if it has newlines, or just one p
+            const paragraphs = art.description.split('\n').filter(p => p.trim() !== '');
+            if (paragraphs.length > 0) {
+                descContainer.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+            } else {
+                descContainer.innerHTML = `<p>${art.description}</p>`;
+            }
+        }
+    }
+
+    // Modal Logic
+    const btnInquiry = document.getElementById('btn-inquiry-open');
+    let modal = null;
+
+    if (btnInquiry) {
+        btnInquiry.addEventListener('click', () => {
+            // Check session first
+            fetch(getApiBase() + 'auth_handler.php?action=check')
+                .then(res => res.json())
+                .then(authState => {
+                    if (!authState.isLoggedIn) {
+                        alert("You must be logged in to send an inquiry.");
+                        window.location.href = 'signin.php';
+                        return;
+                    }
+                    if (authState.userId == currentArtwork.artisanId) {
+                        alert("You cannot send an inquiry for your own artwork.");
+                        return;
+                    }
+                    openInquiryModal();
+                })
+                .catch(() => {
+                    alert("Please log in first.");
+                    window.location.href = 'signin.php';
+                });
+        });
+    }
+
+    function openInquiryModal() {
+        if (!modal) {
+            // Create modal elements
+            modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            
+            const modalContent = `
+                <div class="modal-content">
+                    <button class="modal-close" id="btn-inquiry-close" aria-label="Close modal">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                    
+                    <div class="modal-header">
+                        <div class="modal-icon">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="font-heading" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Inquire about this piece</h2>
+                        <p class="text-sm">Connect directly with the artisan. They usually respond within 24 hours.</p>
+                    </div>
+
+                    <form id="inquiry-form" class="modal-body">
+                        <div style="background: var(--color-bg); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
+                            <img id="modal-art-img" src="${currentArtwork ? currentArtwork.image : ''}" alt="Artwork Thumbnail" style="width: 60px; height: 60px; object-fit: cover; border-radius: var(--radius-sm);">
+                            <div>
+                                <div class="font-bold text-sm" id="modal-art-title">${currentArtwork ? currentArtwork.title : ''}</div>
+                                <div class="text-xs text-text-light" id="modal-art-artisan">by ${currentArtwork ? currentArtwork.artisanName : ''}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label for="message" class="form-label">Your Message *</label>
+                            <textarea id="message" name="message" class="form-control" rows="4" placeholder="Hello, I'm interested in this piece. Could you tell me more about..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Send Inquiry</button>
+                    </form>
+                </div>
+            `;
+            
+            modal.innerHTML = modalContent;
+            document.body.appendChild(modal);
+
+            // Add events
+            const closeBtn = modal.querySelector('#btn-inquiry-close');
+            closeBtn.addEventListener('click', closeInquiryModal);
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeInquiryModal();
+            });
+
+            // Form Submit (API Send)
+            const form = modal.querySelector('#inquiry-form');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const msgContent = form.querySelector('#message').value.trim();
+                if (!msgContent) return;
+
+                // Send via API
+                fetch(getApiBase() + 'api_send_message.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        receiver_id: currentArtwork.artisanId,
+                        content: `[Inquiry regarding ${currentArtwork.title}]\n\n${msgContent}`
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Success state
+                        const card = modal.querySelector('.modal-content');
+                        card.innerHTML = `
+                            <div style="text-align: center; padding: 2rem;">
+                                <div class="modal-icon" style="margin: 0 auto 1.5rem; background: var(--color-sand); color: var(--color-terracotta);">
+                                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <h2 class="font-heading" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Message Sent!</h2>
+                                <p class="text-sm" style="margin-bottom: 2rem;">${currentArtwork.artisanName} will review your inquiry and get back to you soon.</p>
+                                <a href="inbox.php" class="btn btn-primary">Go to Inbox</a>
+                                <button class="btn btn-ghost" onclick="document.querySelector('.modal-overlay').remove(); modal=null;" style="display: block; margin: 1rem auto 0;">Continue Browsing</button>
+                            </div>
+                        `;
+                    } else {
+                        alert("Failed to send message: " + data.error);
+                    }
+                })
+                .catch(err => {
+                    console.error("Send error:", err);
+                    alert("Network error.");
+                });
+            });
+        }
+        
+        // Show modal with slight delay for animation
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.classList.add('visible');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }, 10);
+    }
+
+    function closeInquiryModal() {
+        if (modal) {
+            modal.classList.remove('visible');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }, 300); // Wait for transition
+        }
+    }
+
+    // Follow Button Logic
+    const followBtn = document.querySelector('.artisan-profile-card .btn-outline');
+    if (followBtn) {
+        let isFollowing = false;
+        followBtn.addEventListener('click', () => {
+            isFollowing = !isFollowing;
+            if (isFollowing) {
+                followBtn.textContent = 'Following';
+                followBtn.classList.remove('btn-outline');
+                followBtn.classList.add('btn-primary');
+            } else {
+                followBtn.textContent = 'Follow';
+                followBtn.classList.remove('btn-primary');
+                followBtn.classList.add('btn-outline');
+            }
+        });
+    }
+
+    // Kudos Logic
+    const kudosItems = document.querySelectorAll('.kudos-badge-item');
+    kudosItems.forEach(item => {
+        item.style.cursor = 'pointer'; // ensure it looks clickable
+        item.addEventListener('click', () => {
+            const countSpan = item.querySelector('span');
+            let count = parseInt(countSpan.textContent);
+            
+            if (item.classList.contains('active')) {
+                item.classList.remove('active');
+                item.style.color = '';
+                item.style.background = '';
+                countSpan.textContent = count - 1;
+            } else {
+                item.classList.add('active');
+                item.style.color = '#fff';
+                item.style.background = 'var(--color-terracotta)';
+                item.style.borderColor = 'var(--color-terracotta)';
+                countSpan.textContent = count + 1;
+            }
+        });
+    });
+});
