@@ -12,7 +12,7 @@
 
 ---
 
-> 🛠️ **Current Status**: The frontend is fully implemented with HTML5, CSS3, and **Vanilla JavaScript** (Phase 2 complete). JS handles dynamic gallery rendering, category filtering, Kudos interactions, role-based dashboard rendering, profile management, and messaging. **The Native PHP backend (Phase 3) is planned for future implementation**.
+> 🛠️ **Current Status**: The project is fully implemented (Phase 3 complete). It features a Native PHP REST API backend connected to a MySQL database using PDO. The frontend uses Vanilla JS to interface with the backend APIs for dynamic gallery rendering, authentication, profile management, and real-time messaging.
 
 ## 📸 Visual Showcase
 
@@ -23,12 +23,12 @@ Explore the design and user journey envisioned for Fannen.tn through these high-
 
 The homepage serves as the global discovery feed, utilizing a masonry-style grid to display uploaded artworks. It features visual category filter buttons that allow users to dynamic filter the feed (e.g., viewing only "Ceramics") without reloading the page.
 
-### 🛡️ **Authentication (signin.html & register.html)**
+### 🛡️ **Authentication (signin.php & register.php)**
 *Mockup placeholder: Split-screen login/register form with role selection*
 
 Authentication is split into two dedicated pages with a premium 50/50 split-screen layout. **Sign In** provides email, password, and role selection. **Register** collects full profile details (name, username, age, phone, email, password, role). Users are redirected based on their role — Artisans go to the Dashboard, Enthusiasts go to the Homepage.
 
-### ⭐ **Artwork Showcase (artwork_detail.html)**
+### ⭐ **Artwork Showcase (artwork_detail.php)**
 *Mockup placeholder: Detailed view with large image, description, and Kudos badges*
 
 This page provides a detailed view of a specific craft, featuring a large high-resolution image, detailed description, and an artisan profile snippet. It serves as the hub for interaction, hosting the unique "Kudos" badge system and the primary "Contact Artisan" button.
@@ -38,12 +38,12 @@ This page provides a detailed view of a specific craft, featuring a large high-r
 
 Fannen.tn replaces numerical ratings with specific appreciation badges (e.g., "Incredible Technique", "Creative Idea"). Users can also click "Contact Artisan" to open a messaging form regarding a specific artwork, facilitating direct inquiries.
 
-### 📋 **Role-Based Dashboard (dashboard.html)**
+### 📋 **Role-Based Dashboard (dashboard.php)**
 *Mockup placeholder: Artisan backend view with upload form and active listings*
 
 The dashboard dynamically adapts based on the user's role. **Artisans** see analytics stats (Kudos, Views, Inquiries), a drag-and-drop upload zone, and a portfolio management table. **Enthusiasts** see their profile details, saved/favorite artworks, followed artisans, and interaction history. Both roles share a profile card with inline edit functionality. Sidebar links update dynamically: "Dashboard" + "Messaging" for artisans, "Profile" + "Messaging" for enthusiasts.
 
-### 🔍 **Messaging Inbox (inbox.html)**
+### 🔍 **Messaging Inbox (inbox.php)**
 *Mockup placeholder: Two-pane communication hub layout*
 
 The communication hub utilizes a classic two-pane layout: a conversation list on the left and the active message thread on the right, displaying inquiries linked to specific artworks.
@@ -73,8 +73,8 @@ This project strictly adheres to a foundational web development stack to demonst
 | **HTML5** | Semantic structure | Native, semantic markup |
 | **CSS3** | Styling & Layout | Native CSS (Grid, Flexbox, variables, transitions). No frameworks like Tailwind |
 | **Vanilla JavaScript** | Frontend Logic | ES6+, DOM manipulation, Event Delegation, Fetch API, localStorage state management |
-| **Native PHP** | Backend Logic | Handling routing, form validation, file uploads, and session management (Planned) |
-| **SQL (MySQL/PostgreSQL)** | Database | Normalized relational structure. Must use prepared statements (PDO) (Planned) |
+| **Native PHP** | Backend Logic | API endpoints handling authentication, database operations, and file uploads |
+| **SQL (MySQL)** | Database | Normalized relational structure using PDO prepared statements |
 
 ## 🌟 Try It Out!
 
@@ -108,7 +108,7 @@ As this is an academic project currently focused on frontend structure and desig
 
    Open `index.html` with a live server (e.g., VS Code Live Server extension) or double-click to open directly in your browser. You can navigate between pages using the header links.
 
-**💡 Development Note**: All JavaScript interactivity (gallery filtering, Kudos, authentication, profile management, messaging) is fully implemented. Backend functionality (PHP/MySQL) is planned for Phase 3.
+**💡 Development Note**: The backend functionality (PHP/MySQL) has been successfully implemented, and the frontend connects to it via a set of RESTful APIs.
 
 ### 📁 Project Structure
 Fannen.tn is organized with a clear separation between raw resources and the main application source code.
@@ -120,51 +120,45 @@ Fannen.tn is organized with a clear separation between raw resources and the mai
 │   └── logo/                          # Site & brand logos
 │
 ├── 💻 src/                            # Application Source Code
-│   ├── index.html                     # Global Feed / Discovery page (Level 1)
+│   ├── index.php                      # Global Feed / Discovery page (Level 1)
 │   │
-│   ├── 📄 html/                       # Secondary HTML pages (Level 2)
-│   │   ├── signin.html                # Sign In (split-screen layout)
-│   │   ├── register.html              # Registration (full profile form)
-│   │   ├── artwork_detail.html        # Detailed Showcase
-│   │   ├── dashboard.html             # Role-Based Workspace (Artisan / Enthusiast)
-│   │   ├── inbox.html                 # Communication Hub
-│   │   └── our_story.html             # Our Story page
+│   ├── 📄 php/                        # Secondary PHP pages (Level 2)
+│   │   ├── signin.php                 # Sign In (split-screen layout)
+│   │   ├── register.php               # Registration (full profile form)
+│   │   ├── artwork_detail.php         # Detailed Showcase
+│   │   ├── dashboard.php              # Role-Based Workspace (Artisan / Enthusiast)
+│   │   ├── inbox.php                  # Communication Hub
+│   │   └── our_story.php              # Our Story page
 │   │
 │   ├── 🎨 css/                        # Stylesheets
 │   │   └── styles.css                 # Centralized global styles (+.hidden-role utility)
 │   │
-│   └── ⚡ js/                         # JavaScript Modules
-│       ├── main.js                    # Global UI (navbar auth state, image fallbacks)
-│       ├── components/                # Page-specific logic
-│       │   ├── auth.js                # Sign in & registration handlers
-│       │   ├── gallery.js             # Gallery rendering & category filtering
-│       │   ├── dashboard.js           # Role-based rendering, profile management
-│       │   ├── inbox.js               # Messaging & conversation management
-│       │   └── interaction.js         # Artwork detail, kudos, inquiry modal
-│       └── data/                      # Mock JSON databases
-│           ├── artworks.json          # Artwork catalog
-│           ├── conversations.json     # Conversation list
-│           └── messages.json          # Chat messages
+│   ├── ⚡ js/                         # JavaScript Modules
+│   │   ├── main.js                    # Global UI (navbar auth state, image fallbacks)
+│   │   └── components/                # Page-specific logic
+│   │       ├── auth.js                # Sign in & registration handlers
+│   │       ├── gallery.js             # Gallery rendering & category filtering
+│   │       ├── dashboard.js           # Role-based rendering, profile management
+│   │       ├── inbox.js               # Messaging & conversation management
+│   │       └── interaction.js         # Artwork detail, kudos, inquiry modal
+│   │
+│   └── 🔌 api/                        # PHP API Endpoints
+│       ├── config.php                 # Database connection
+│       ├── auth_handler.php           # Registration/Login
+│       └── setup_database.php         # Database migration & seeder
 │
 └── 📄 README.md                       # Project documentation
 ```
 ### 🔄 Current Workflow Overview
-**`index.html`** → `gallery.js` fetches `artworks.json` → Renders masonry grid → Category filtering via event delegation
+**`index.php`** → `gallery.js` fetches from `api_get_artworks.php` → Renders masonry grid → Category filtering via event delegation
 
-**`signin.html / register.html`** → `auth.js` saves auth state & profile to `localStorage` → Redirects by role
+**`signin.php / register.php`** → `auth.js` calls `auth_handler.php` → Redirects by role
 
-**`artwork_detail.html`** → `interaction.js` handles Kudos badges & inquiry modal → Saves messages to `localStorage`
+**`artwork_detail.php`** → `interaction.js` fetches artwork, handles Kudos badges & inquiry modal
 
-**`dashboard.html`** → `dashboard.js` checks auth → Toggles `.hidden-role` on role sections → Profile card display/edit
+**`dashboard.php`** → `dashboard.js` calls `api_get_profile.php` and `api_get_artworks.php` → Renders profile data and portfolio table
 
-**`inbox.html`** → `inbox.js` fetches `conversations.json` + `messages.json` → Renders two-pane chat UI
-
-### 🔮 Planned Backend Workflow (Phase 3)
-**`auth`** (PHP) → Validates inputs → Hashes passwords → Initiates `$_SESSION`
-
-**`dashboard`** (PHP) → Handles `multipart/form-data` for file uploads → Executes INSERT queries
-
-**`inbox`** (SQL) → Queries messages table based on session ID
+**`inbox.php`** → `inbox.js` calls `api_get_contacts.php` + `api_get_messages.php` → Renders two-pane chat UI
 
 ### 🚀 Skills Developed
 This project provides hands-on experience with:
@@ -175,9 +169,9 @@ This project provides hands-on experience with:
 
 **👥 Role-Based logic** — Structuring user journeys and page access based on distinct user roles.
 
-**🗃️ Normalized DB Design** — Planning relational SQL structures to handle users, artworks, kudos, and messages with integrity (Planned).
+**🗃️ Normalized DB Design** — Planning relational SQL structures to handle users, artworks, kudos, and messages with integrity.
 
-**⚡ Asynchronous UX** — Planning Fetch API implementations for features like live filtering and real-time social engagement (Planned).
+**⚡ Asynchronous UX** — Utilizing Fetch API implementations for features like live filtering and real-time social engagement connected to PHP APIs.
 
 ### 🤝 Support & Contribution
 We'd love to hear from you! Fannen.tn is an open academic project, and community interaction helps improve the learning experience.
