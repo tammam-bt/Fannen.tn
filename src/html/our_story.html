@@ -35,8 +35,9 @@
     <main>
         <!-- Hero Section -->
         <section class="hero-section" style="background-color: var(--color-sand-beige);">
-            <video class="hero-video" autoplay muted loop playsinline>
+            <video class="hero-video" autoplay muted loop playsinline preload="auto">
                 <source src="../../Resources/video/hero.mp4" type="video/mp4">
+                Your browser does not support the video tag.
             </video>
             <div class="container">
                 <h1 class="font-heading" style="margin-bottom: var(--spacing-md);">Three Students, One Vision, A
