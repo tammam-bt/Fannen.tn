@@ -126,7 +126,7 @@ Fannen.tn is fully implemented, backend included. The best way to experience it 
 ### 🖼️ Option 2: Preview the Static UI Only (No Setup Required)
 **A quick, backend-less look at the visual design language.**
 
-- [![Visit Fannen.tn Design Gallery](https://img.shields.io/badge/Visit_Static_Preview-D8603B?style=for-the-badge&logoColor=white)](https://roaring-cendol-b1e95b.netlify.app/src/index.html)
+- [![Visit Fannen.tn Design Gallery](https://img.shields.io/badge/Visit_Static_Preview-D8603B?style=for-the-badge&logoColor=white)](https://fannentn.netlify.app/)
 
 > ⚠️ This Netlify deployment serves the static HTML/JS preview from `src/` (configured by `netlify.toml`). Netlify cannot run PHP or MySQL, so login, the live database-backed gallery, messaging, and persisted Kudos/Follow/Save do not work there. The static preview uses `localStorage` and sample JSON data for a UI-only experience. Use Option 1 above to try the real application.
 

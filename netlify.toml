@@ -1,23 +1,18 @@
 [build]
-  # Netlify serves the static HTML/JS/CSS preview from the repository root so that
-  # the Resources/ folder (logo, video, placeholder, team photos) is included in the
-  # deploy and reachable from the static pages via their existing ../Resources/ paths.
+  # Netlify publishes the src/ folder so the static preview URLs stay clean (e.g.,
+  # /index.html). Before publishing, copy the Resources/ folder into src/ so the static
+  # pages can reach assets via their existing ../Resources/ paths.
   # PHP files under src/api/ and src/php/ are NOT executed on Netlify; they are present
   # only as source code and will be served as plain text if accessed.
-  publish = "."
+  publish = "src"
+  command = "rm -rf src/Resources && cp -R Resources src/Resources"
 
 [[redirects]]
   from = "/"
-  to = "/src/index.html"
+  to = "/index.html"
   status = 200
 
-# Explicitly expose the Resources/ folder and ensure media assets are served with the
-# correct MIME types. This makes the static assets "visible" to Netlify and browsers.
-[[headers]]
-  for = "/Resources/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-
+# Ensure media assets are served with the correct MIME types.
 [[headers]]
   for = "*.mp4"
   [headers.values]
