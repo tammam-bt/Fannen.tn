@@ -48,6 +48,60 @@ The dashboard dynamically adapts based on the user's role. **Artisans** see live
 
 The communication hub utilizes a classic two-pane layout: a conversation list on the left and the active message thread on the right, displaying inquiries linked to specific artworks.
 
+## 📸 Screenshots
+
+A visual tour of the Fannen.tn interface.
+
+### 1. Hero Section
+The landing hero features a background video showcasing traditional craftsmanship, with clear calls-to-action to explore the gallery or join as an artisan.
+
+![Hero Section](<Resources/screenshots/1- Hero.png>)
+
+### 2. Products Gallery
+The gallery feed displays artworks in a masonry-style grid with category filtering, artisan names, sample prices, and kudos counts.
+
+![Products Gallery](<Resources/screenshots/2- Products Gallery.png>)
+
+### 3. Product Page
+The artwork detail page shows a high-resolution image, artisan profile, description, price, kudos badges, follow/save actions, and an inquiry button.
+
+![Product Page](<Resources/screenshots/3- Product Page.png>)
+
+### 4. Our Story Page (Hero)
+The Our Story page opens with a hero section and background video, introducing the project's mission to preserve Tunisian craftsmanship.
+
+![Our Story Hero](<Resources/screenshots/4- Our story page (Hero).png>)
+
+### 5. Our Story Page (The Developers)
+The team section highlights the three students behind the project: The Architect, The Designer, and The Integrator.
+
+![Our Story Team](<Resources/screenshots/5- Our story page(The developers section).png>)
+
+### 6. Login
+The split-screen login page lets users sign in with email, password, and role selection (Artisan or Enthusiast).
+
+![Login](<Resources/screenshots/6- Login.png>)
+
+### 7. Signup
+The registration page collects full profile details including name, username, age, phone, email, password, role, and terms acceptance.
+
+![Signup](<Resources/screenshots/7- Signup.png>)
+
+### 8. Profile Dashboard
+The dashboard adapts to the user's role: artisans see portfolio stats, an upload zone, and a portfolio table; enthusiasts see saved artworks, followed artisans, and interaction history.
+
+![Profile Dashboard](<Resources/screenshots/8- Profile dashboard.png>)
+
+### 9. Messaging Page
+The messaging page uses a two-pane layout: a conversation list on the left and the active chat thread on the right, with artwork context for each inquiry.
+
+![Messaging Page](<Resources/screenshots/9- Messaging page.png>)
+
+### 10. Footer
+The shared footer provides navigation links, company information, and support links across all pages.
+
+![Footer](<Resources/screenshots/10- Footer.png>)
+
 ## ✨ Key Features
 
 - 👥 **Role-Based Dashboard Rendering** — The dashboard dynamically shows/hides sections using `.role-artisan-only` and `.role-enthusiast-only` wrapper classes, toggled via the `.hidden-role` CSS utility.
