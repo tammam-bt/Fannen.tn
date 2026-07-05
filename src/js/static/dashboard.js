@@ -1,0 +1,278 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // Protected Route Simulation
+    const authStateStr = localStorage.getItem('fannen_auth_state');
+    const authState = authStateStr ? JSON.parse(authStateStr) : { isLoggedIn: false, role: 'user' };
+
+    if (!authState.isLoggedIn) {
+        window.location.href = 'signin.html';
+        return; // Stop execution
+    }
+
+    // Role-based Section Toggling
+    const artisanSections = document.querySelectorAll('.role-artisan-only');
+    const enthusiastSections = document.querySelectorAll('.role-enthusiast-only');
+
+    if (authState.role === 'artisan') {
+        enthusiastSections.forEach(el => el.classList.add('hidden-role'));
+        artisanSections.forEach(el => el.classList.remove('hidden-role'));
+    } else {
+        // Enthusiast (user) view
+        artisanSections.forEach(el => el.classList.add('hidden-role'));
+        enthusiastSections.forEach(el => el.classList.remove('hidden-role'));
+
+        // Update titles for Enthusiast
+        const studioTitle = document.querySelector('.dashboard-header h1');
+        const studioSubtitle = document.querySelector('.dashboard-header p');
+        if (studioTitle) studioTitle.textContent = 'My Profile';
+        if (studioSubtitle) studioSubtitle.textContent = 'Manage your account and view your activities.';
+        
+        // Rename sidebar link text from "Dashboard" to "Profile"
+        const navDashboardText = document.getElementById('nav-dashboard-text');
+        if (navDashboardText) navDashboardText.textContent = 'Profile';
+
+        // Rename profile card heading
+        const profileCardHeading = document.querySelector('.profile-card h2');
+        if (profileCardHeading) profileCardHeading.textContent = 'Profile Details';
+    }
+
+    // Profile Management Logic
+    const profileDisplay = document.getElementById('profile-display');
+    const profileEditForm = document.getElementById('profile-edit-form');
+    const btnEditProfile = document.getElementById('btn-edit-profile');
+    
+    // Default user data in case localStorage is empty
+    let userData = JSON.parse(localStorage.getItem('fannen_user_profile')) || {
+        fullname: 'New User',
+        username: 'user_' + authState.userId.split('-')[1],
+        age: '--',
+        phone: '--',
+        email: 'user@example.tn',
+        role: authState.role // Use the role from auth state!
+    };
+    
+    // Always sync role from auth state to profile data
+    userData.role = authState.role;
+
+    function renderProfileDisplay() {
+        if (!profileDisplay) return;
+        profileDisplay.innerHTML = `
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Full Name</p>
+                <p style="font-weight: 500;">${escapeHtml(userData.fullname)}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Username</p>
+                <p style="font-weight: 500;">@${escapeHtml(userData.username)}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Age</p>
+                <p style="font-weight: 500;">${escapeHtml(userData.age)}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Phone</p>
+                <p style="font-weight: 500;">${escapeHtml(userData.phone)}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Email</p>
+                <p style="font-weight: 500;">${escapeHtml(userData.email)}</p>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Role</p>
+                <p style="font-weight: 500; text-transform: capitalize;">${escapeHtml(userData.role)}</p>
+            </div>
+        `;
+    }
+
+    if (profileDisplay && profileEditForm && btnEditProfile) {
+        renderProfileDisplay();
+
+        let isEditMode = false;
+
+        btnEditProfile.addEventListener('click', () => {
+            if (!isEditMode) {
+                // Switch to edit mode
+                isEditMode = true;
+                btnEditProfile.textContent = 'Save Changes';
+                btnEditProfile.classList.remove('btn-outline');
+                btnEditProfile.classList.add('btn-primary');
+                btnEditProfile.style.backgroundColor = 'var(--color-terracotta)';
+                btnEditProfile.style.color = '#fff';
+
+                // Populate form
+                document.getElementById('edit-fullname').value = userData.fullname;
+                document.getElementById('edit-username').value = userData.username;
+                document.getElementById('edit-age').value = userData.age;
+                document.getElementById('edit-phone').value = userData.phone;
+                document.getElementById('edit-email').value = userData.email;
+
+                profileDisplay.style.display = 'none';
+                profileEditForm.style.display = 'block';
+            } else {
+                // Save changes
+                isEditMode = false;
+                btnEditProfile.textContent = 'Edit Profile';
+                btnEditProfile.classList.remove('btn-primary');
+                btnEditProfile.classList.add('btn-outline');
+                btnEditProfile.style.backgroundColor = 'transparent';
+                btnEditProfile.style.color = 'var(--color-charcoal)';
+
+                userData.fullname = document.getElementById('edit-fullname').value;
+                userData.username = document.getElementById('edit-username').value;
+                userData.age = document.getElementById('edit-age').value;
+                userData.phone = document.getElementById('edit-phone').value;
+                userData.email = document.getElementById('edit-email').value;
+
+                localStorage.setItem('fannen_user_profile', JSON.stringify(userData));
+
+                renderProfileDisplay();
+
+                profileEditForm.style.display = 'none';
+                profileDisplay.style.display = 'grid';
+            }
+        });
+    }
+
+    // Drag and Drop Upload UI Mock
+    const uploadZone = document.getElementById('upload-zone');
+    if (uploadZone) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            uploadZone.classList.add('highlight');
+            uploadZone.style.borderColor = 'var(--color-terracotta)';
+            uploadZone.style.background = 'rgba(216, 96, 59, 0.05)';
+        }
+
+        function unhighlight(e) {
+            uploadZone.classList.remove('highlight');
+            uploadZone.style.borderColor = 'var(--color-border)';
+            uploadZone.style.background = 'transparent';
+        }
+
+        uploadZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            let dt = e.dataTransfer;
+            let files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const fileName = files[0].name;
+                alert(`Mock Upload: File "${fileName}" received. In the live app, this would be uploaded to the PHP server.`);
+            }
+        }
+        
+        // Button fallback
+        const selectBtn = document.getElementById('btn-select-files');
+        if (selectBtn) {
+            selectBtn.addEventListener('click', () => {
+                // Create invisible file input to trigger dialog
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = e => {
+                    handleFiles(e.target.files);
+                };
+                input.click();
+            });
+        }
+    }
+
+    // Fetch and populate portfolio table
+    const tableBody = document.getElementById('portfolio-table-body');
+    if (tableBody) {
+        fetch('../js/data/artworks.json')
+            .then(res => res.json())
+            .then(data => {
+                tableBody.innerHTML = ''; // Clear fallback/loading
+                data.forEach(artwork => {
+                    const statusClass = artwork.status.toLowerCase() === 'published' ? 'published' : '';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="flex items-center gap-sm">
+                                <img src="${artwork.image}" alt="${escapeHtml(artwork.title)}" style="width: 40px; height: 40px; border-radius: var(--radius-sm); object-fit: cover;">
+                                <span class="font-bold">${escapeHtml(artwork.title)}</span>
+                            </div>
+                        </td>
+                        <td style="text-transform: capitalize;">${escapeHtml(artwork.category)}</td>
+                        <td><span class="status-badge ${statusClass}">${escapeHtml(artwork.status)}</span></td>
+                        <td><span class="text-text-light">${escapeHtml(artwork.views || '0')}</span></td>
+                        <td><span class="text-text-light">${escapeHtml(artwork.dateAdded || 'Recently')}</span></td>
+                        <td>
+                            <div class="flex gap-sm text-text-light">
+                                <button class="btn-ghost" aria-label="Edit" style="border:none; padding:4px;">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                    </svg>
+                                </button>
+                                <button class="btn-ghost" aria-label="Delete" style="border:none; padding:4px;">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            })
+            .catch(err => console.error('Error loading portfolio:', err));
+    }
+
+    // Portfolio Table Interactions (Edit/Delete)
+    const portfolioTable = document.getElementById('portfolio-table');
+    if (portfolioTable) {
+        portfolioTable.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-ghost');
+            if (!btn) return;
+            
+            const tr = btn.closest('tr');
+            if (!tr) return;
+            
+            const artworkTitle = tr.querySelector('.font-bold').textContent;
+            
+            if (btn.getAttribute('aria-label') === 'Edit') {
+                e.preventDefault();
+                alert(`Mock: Opening edit form for "${artworkTitle}"`);
+            } else if (btn.getAttribute('aria-label') === 'Delete') {
+                e.preventDefault();
+                const confirmDelete = confirm(`Are you sure you want to delete "${artworkTitle}"?`);
+                if (confirmDelete) {
+                    tr.style.transition = "opacity 0.3s ease";
+                    tr.style.opacity = '0';
+                    setTimeout(() => {
+                        tr.remove();
+                    }, 300);
+                }
+            }
+        });
+    }
+
+    // Sign Out Logic for Dashboard Sidebar
+    const btnSignout = document.getElementById('btn-signout');
+    if (btnSignout) {
+        btnSignout.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('fannen_auth_state');
+            window.location.href = 'signin.html';
+        });
+    }
+});

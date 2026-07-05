@@ -28,6 +28,7 @@ try {
             age INT,
             password_hash VARCHAR(255) NOT NULL,
             role ENUM('artisan', 'enthusiast') NOT NULL,
+            image_url VARCHAR(500) NULL DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ");
@@ -42,6 +43,7 @@ try {
             category VARCHAR(100),
             description TEXT,
             image_path VARCHAR(500),
+            views INT NOT NULL DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (artisan_id) REFERENCES users(id) ON DELETE CASCADE
         )
@@ -62,6 +64,50 @@ try {
         )
     ");
     echo "<p>✅ Table 'messages' created.</p>";
+
+    // Create kudos table — one row per (user, artwork, badge type). A user may give
+    // each badge type at most once per artwork, but can give multiple different badges.
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS kudos (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            artwork_id INT NOT NULL,
+            badge_type ENUM('technique', 'love', 'creative', 'inspiring') NOT NULL DEFAULT 'love',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_kudos (user_id, artwork_id, badge_type),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (artwork_id) REFERENCES artworks(id) ON DELETE CASCADE
+        )
+    ");
+    echo "<p>✅ Table 'kudos' created.</p>";
+
+    // Create follows table — enthusiasts (or anyone) following an artisan
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS follows (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            follower_id INT NOT NULL,
+            artisan_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_follow (follower_id, artisan_id),
+            FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (artisan_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ");
+    echo "<p>✅ Table 'follows' created.</p>";
+
+    // Create saved_artworks table — a user's "favorites" list
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS saved_artworks (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            artwork_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_save (user_id, artwork_id),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (artwork_id) REFERENCES artworks(id) ON DELETE CASCADE
+        )
+    ");
+    echo "<p>✅ Table 'saved_artworks' created.</p>";
 
     // --- SEED DATA ---
 
@@ -99,23 +145,30 @@ try {
         $userIds[$row['username']] = $row['id'];
     }
 
-    // Seed artworks
+    // Seed artworks (with a small baseline view count so the demo isn't all zeros)
     $artworks = [
-        [$userIds['hedi_b'],    'Kairouan Blue Amphora',  'ceramics',  'Hand-painted terracotta with traditional indigo pigments.', 'https://images.unsplash.com/photo-1663888672535-956677e08412?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'],
-        [$userIds['malek_bs'],  'Cerulean Oasis Vase',    'ceramics',  'A beautiful vase showcasing the deep blue hues of traditional oasis pottery.', 'https://images.unsplash.com/photo-1631125915902-d8abe9225ff2?q=80&w=687&auto=format&fit=crop'],
-        [$userIds['fatma_b'],   'Atlas Wool Kilim',       'textiles',  'Hand-woven rug made from pure Atlas mountain wool.', 'https://images.unsplash.com/photo-1606885118474-c8baf907e998?q=80&w=687&auto=format&fit=crop'],
-        [$userIds['amine_k'],   'Nabeul Blue Amphora',    'ceramics',  'A classic amphora painted with Nabeul\'s signature blue and white motifs.', 'https://plus.unsplash.com/premium_photo-1673152979526-98b94a39b6aa?q=80&w=687&auto=format&fit=crop'],
-        [$userIds['yassine_d'], 'Olive Wood Serving Bowl','woodwork',  'A uniquely grained serving bowl carved from a single piece of ancient olive wood.', 'https://plus.unsplash.com/premium_photo-1677249227901-38319e9408fd?q=80&w=687&auto=format&fit=crop'],
+        [$userIds['hedi_b'],    'Kairouan Blue Amphora',  'ceramics',  'Hand-painted terracotta with traditional indigo pigments.', 'https://images.unsplash.com/photo-1663888672535-956677e08412?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', 34],
+        [$userIds['malek_bs'],  'Cerulean Oasis Vase',    'ceramics',  'A beautiful vase showcasing the deep blue hues of traditional oasis pottery.', 'https://images.unsplash.com/photo-1631125915902-d8abe9225ff2?q=80&w=687&auto=format&fit=crop', 58],
+        [$userIds['fatma_b'],   'Atlas Wool Kilim',       'textiles',  'Hand-woven rug made from pure Atlas mountain wool.', 'https://images.unsplash.com/photo-1606885118474-c8baf907e998?q=80&w=687&auto=format&fit=crop', 21],
+        [$userIds['amine_k'],   'Nabeul Blue Amphora',    'ceramics',  'A classic amphora painted with Nabeul\'s signature blue and white motifs.', 'https://plus.unsplash.com/premium_photo-1673152979526-98b94a39b6aa?q=80&w=687&auto=format&fit=crop', 12],
+        [$userIds['yassine_d'], 'Olive Wood Serving Bowl','woodwork',  'A uniquely grained serving bowl carved from a single piece of ancient olive wood.', 'https://plus.unsplash.com/premium_photo-1677249227901-38319e9408fd?q=80&w=687&auto=format&fit=crop', 45],
     ];
 
     $stmt = $pdo->prepare("
-        INSERT INTO artworks (artisan_id, title, category, description, image_path)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO artworks (artisan_id, title, category, description, image_path, views)
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
     foreach ($artworks as $a) {
         $stmt->execute($a);
     }
     echo "<p>✅ 5 artworks seeded.</p>";
+
+    // Fetch artwork IDs by title, for use in kudos/follows/saved_artworks seeding below
+    $artworkIds = [];
+    $res = $pdo->query("SELECT id, title FROM artworks");
+    while ($row = $res->fetch()) {
+        $artworkIds[$row['title']] = $row['id'];
+    }
 
     // Seed sample messages between enthusiast (ahmed_t) and artisan (malek_bs)
     $ahmadId = $pdo->query("SELECT id FROM users WHERE username = 'ahmed_t'")->fetchColumn();
@@ -132,6 +185,28 @@ try {
         $stmt->execute($m);
     }
     echo "<p>✅ Sample messages seeded.</p>";
+
+    // Seed a handful of kudos so galleries/stats aren't empty on first login
+    $kudosSeed = [
+        [$ahmadId, $artworkIds['Cerulean Oasis Vase'], 'love'],
+        [$ahmadId, $artworkIds['Cerulean Oasis Vase'], 'technique'],
+        [$userIds['hedi_b'], $artworkIds['Atlas Wool Kilim'], 'creative'],
+        [$userIds['fatma_b'], $artworkIds['Kairouan Blue Amphora'], 'inspiring'],
+        [$userIds['amine_k'], $artworkIds['Olive Wood Serving Bowl'], 'love'],
+        [$userIds['yassine_d'], $artworkIds['Nabeul Blue Amphora'], 'technique'],
+    ];
+    $stmt = $pdo->prepare("INSERT IGNORE INTO kudos (user_id, artwork_id, badge_type) VALUES (?, ?, ?)");
+    foreach ($kudosSeed as $k) {
+        $stmt->execute($k);
+    }
+    echo "<p>✅ Sample kudos seeded.</p>";
+
+    // Seed a follow relationship (Ahmed follows Malek) and a saved artwork
+    $pdo->prepare("INSERT IGNORE INTO follows (follower_id, artisan_id) VALUES (?, ?)")
+        ->execute([$ahmadId, $malekId]);
+    $pdo->prepare("INSERT IGNORE INTO saved_artworks (user_id, artwork_id) VALUES (?, ?)")
+        ->execute([$ahmadId, $artworkIds['Cerulean Oasis Vase']]);
+    echo "<p>✅ Sample follow + saved artwork seeded.</p>";
 
     echo "<hr><h3>🎉 Setup complete! You can now use the platform.</h3>";
     echo "<p><a href='../index.php'>→ Go to Homepage</a></p>";

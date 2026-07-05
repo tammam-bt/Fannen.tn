@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (authState.role === 'artisan') {
             enthusiastSections.forEach(el => el.classList.add('hidden-role'));
             artisanSections.forEach(el => el.classList.remove('hidden-role'));
+            loadDashboardStats();
         } else {
             // Enthusiast (user) view
             artisanSections.forEach(el => el.classList.add('hidden-role'));
@@ -43,6 +44,105 @@ document.addEventListener('DOMContentLoaded', () => {
             // Rename profile card heading
             const profileCardHeading = document.querySelector('.profile-card h2');
             if (profileCardHeading) profileCardHeading.textContent = 'Profile Details';
+
+            loadInteractions();
+        }
+
+        function loadDashboardStats() {
+            fetch(getApiBase() + 'api_dashboard_stats.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) return;
+                    const kudosEl = document.getElementById('stat-total-kudos');
+                    const viewsEl = document.getElementById('stat-total-views');
+                    const inquiriesEl = document.getElementById('stat-pending-inquiries');
+                    if (kudosEl) kudosEl.textContent = Number(data.totalKudos || 0).toLocaleString();
+                    if (viewsEl) viewsEl.textContent = Number(data.totalViews || 0).toLocaleString();
+                    if (inquiriesEl) inquiriesEl.textContent = Number(data.pendingInquiries || 0).toLocaleString();
+                })
+                .catch(err => console.error('Error loading dashboard stats:', err));
+        }
+
+        function loadInteractions() {
+            const savedGrid = document.getElementById('saved-artworks-grid');
+            const followingGrid = document.getElementById('following-artisans-grid');
+            const historyList = document.getElementById('interaction-history-list');
+
+            fetch(getApiBase() + 'api_interactions.php')
+                .then(res => res.json())
+                .then(data => {
+                    // Saved artworks
+                    if (savedGrid) {
+                        if (data.savedArtworks && data.savedArtworks.length > 0) {
+                            savedGrid.innerHTML = data.savedArtworks.map(art => `
+                                <div class="artwork-card">
+                                    <div class="artwork-img-box" style="aspect-ratio: 1;">
+                                        <img src="${art.image}" alt="${escapeHtml(art.title)}" loading="lazy">
+                                    </div>
+                                    <div class="artwork-content" style="padding: 1rem;">
+                                        <h3 class="font-bold text-sm">${escapeHtml(art.title)}</h3>
+                                        <p class="text-sm text-text-light">by ${escapeHtml(art.artisanName)}</p>
+                                    </div>
+                                </div>
+                            `).join('');
+                        } else {
+                            savedGrid.innerHTML = '<p class="text-sm text-text-light" style="grid-column: 1 / -1;">No saved artworks yet.</p>';
+                        }
+                    }
+
+                    // Following artisans
+                    if (followingGrid) {
+                        if (data.following && data.following.length > 0) {
+                            followingGrid.innerHTML = data.following.map(artisan => {
+                                const name = escapeHtml(artisan.fullName);
+                                const img = artisan.image ? escapeHtml(artisan.image) : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=D8603B&color=fff&size=100`;
+                                return `
+                                    <div class="stat-card" style="padding: 1rem; border-radius: var(--radius-full);">
+                                        <img src="${img}" alt="${name}" class="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                                        <div>
+                                            <p class="font-bold text-sm">${name}</p>
+                                            <p class="text-sm text-text-light">@${escapeHtml(artisan.username)}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                        } else {
+                            followingGrid.innerHTML = '<p class="text-sm text-text-light" style="grid-column: 1 / -1;">You are not following any artisans yet.</p>';
+                        }
+                    }
+
+                    // Interaction history
+                    if (historyList) {
+                        if (data.history && data.history.length > 0) {
+                            historyList.innerHTML = data.history.map(item => {
+                                const partner = escapeHtml(item.partnerName);
+                                const content = escapeHtml(item.content);
+                                const when = new Date(item.createdAt).toLocaleDateString();
+                                const icon = item.direction === 'sent'
+                                    ? '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>'
+                                    : '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>';
+                                return `
+                                    <div class="conversation-item" style="border-bottom: none;">
+                                        <div class="stat-icon" style="background: var(--color-sand-dark); color: var(--color-charcoal); border-radius: 50%;">
+                                            ${icon}
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-sm">${item.direction === 'sent' ? 'Inquiry sent to' : 'Message from'} ${partner}</p>
+                                            <p class="text-sm text-text-light">"${content}" <span style="margin-left: 0.5rem; font-size: 0.75rem;">${when}</span></p>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                        } else {
+                            historyList.innerHTML = '<p class="text-sm text-text-light" style="padding: 1rem;">No interactions yet.</p>';
+                        }
+                    }
+
+                    if (typeof initImageFallbacks === 'function') {
+                        initImageFallbacks();
+                    }
+                })
+                .catch(err => console.error('Error loading interactions:', err));
         }
 
         // Profile Management Logic
@@ -64,30 +164,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function renderProfileDisplay() {
             if (!profileDisplay) return;
+            const safeRole = userData.role === 'user' ? 'enthusiast' : (userData.role || '');
             profileDisplay.innerHTML = `
                 <div>
                     <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Full Name</p>
-                    <p style="font-weight: 500;">${userData.fullname || '--'}</p>
+                    <p style="font-weight: 500;">${escapeHtml(userData.fullname) || '--'}</p>
                 </div>
                 <div>
                     <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Username</p>
-                    <p style="font-weight: 500;">@${userData.username || '--'}</p>
+                    <p style="font-weight: 500;">@${escapeHtml(userData.username) || '--'}</p>
                 </div>
                 <div>
                     <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Age</p>
-                    <p style="font-weight: 500;">${userData.age || '--'}</p>
+                    <p style="font-weight: 500;">${escapeHtml(userData.age) || '--'}</p>
                 </div>
                 <div>
                     <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Phone</p>
-                    <p style="font-weight: 500;">${userData.phone || '--'}</p>
+                    <p style="font-weight: 500;">${escapeHtml(userData.phone) || '--'}</p>
                 </div>
                 <div>
                     <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Email</p>
-                    <p style="font-weight: 500;">${userData.email || '--'}</p>
+                    <p style="font-weight: 500;">${escapeHtml(userData.email) || '--'}</p>
                 </div>
                 <div>
                     <p class="text-sm font-bold text-text-light" style="text-transform: uppercase;">Role</p>
-                    <p style="font-weight: 500; text-transform: capitalize;">${userData.role === 'user' ? 'enthusiast' : userData.role}</p>
+                    <p style="font-weight: 500; text-transform: capitalize;">${escapeHtml(safeRole)}</p>
                 </div>
             `;
         }
@@ -282,17 +383,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         const statusClass = artwork.status && artwork.status.toLowerCase() === 'published' ? 'published' : '';
                         const tr = document.createElement('tr');
                         tr.dataset.id = artwork.id;
+                        const title = escapeHtml(artwork.title);
+                        const category = escapeHtml(artwork.category);
+                        const status = escapeHtml(artwork.status || 'Published');
+                        const views = escapeHtml(artwork.views || '0');
+                        const dateAdded = escapeHtml(artwork.dateAdded || 'Recently');
                         tr.innerHTML = `
                             <td>
                                 <div class="flex items-center gap-sm">
-                                    <img src="${artwork.image}" alt="${artwork.title}" style="width: 40px; height: 40px; border-radius: var(--radius-sm); object-fit: cover;">
-                                    <span class="font-bold">${artwork.title}</span>
+                                    <img src="${artwork.image}" alt="${title}" style="width: 40px; height: 40px; border-radius: var(--radius-sm); object-fit: cover;">
+                                    <span class="font-bold">${title}</span>
                                 </div>
                             </td>
-                            <td style="text-transform: capitalize;">${artwork.category}</td>
-                            <td><span class="status-badge ${statusClass}">${artwork.status || 'Published'}</span></td>
-                            <td><span class="text-text-light">${artwork.views || '0'}</span></td>
-                            <td><span class="text-text-light">${artwork.dateAdded || 'Recently'}</span></td>
+                            <td style="text-transform: capitalize;">${category}</td>
+                            <td><span class="status-badge ${statusClass}">${status}</span></td>
+                            <td><span class="text-text-light">${views}</span></td>
+                            <td><span class="text-text-light">${dateAdded}</span></td>
                             <td>
                                 <div class="flex gap-sm text-text-light">
                                     <button class="btn-ghost btn-delete" aria-label="Delete" style="border:none; padding:4px; color: var(--color-charcoal);">

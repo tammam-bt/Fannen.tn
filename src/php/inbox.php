@@ -1,3 +1,12 @@
+<?php
+require_once __DIR__ . '/../api/config.php';
+
+// Server-side session guard: inbox is protected for logged-in users only
+if (!isset($_SESSION['user_id'])) {
+    header('Location: signin.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 

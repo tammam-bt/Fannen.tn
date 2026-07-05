@@ -53,22 +53,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             conversationListContainer.innerHTML = dataToRender.map(conv => {
-                const unreadBadge = conv.unreadCount > 0 ? `<span class="badge" style="background: var(--color-terracotta); color: white;">${conv.unreadCount}</span>` : '';
+                const partnerName = escapeHtml(conv.partnerName);
+                const lastMessage = escapeHtml(conv.lastMessage);
+                const timestamp = escapeHtml(conv.timestamp);
+                const unreadCount = escapeHtml(conv.unreadCount);
+                const unreadBadge = conv.unreadCount > 0 ? `<span class="badge" style="background: var(--color-terracotta); color: white;">${unreadCount}</span>` : '';
                 const activeClass = conv.contactId === activeContactId ? 'active' : '';
-                
+
                 return `
-                    <div class="conversation-item ${activeClass}" data-id="${conv.contactId}">
+                    <div class="conversation-item ${activeClass}" data-id="${escapeHtml(conv.contactId)}">
                         <div style="position: relative;">
-                            <img src="${conv.avatar}" alt="${conv.partnerName}" style="width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: cover;">
+                            <img src="${conv.avatar}" alt="${partnerName}" style="width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: cover;">
                             ${conv.unreadCount > 0 ? '<div style="position: absolute; top: -4px; right: -4px; width: 12px; height: 12px; background: var(--color-terracotta); border-radius: 50%; border: 2px solid white;"></div>' : ''}
                         </div>
                         <div class="conversation-details">
                             <div class="flex justify-between items-center" style="margin-bottom: 0.25rem;">
-                                <span class="conversation-name">${conv.partnerName}</span>
-                                <span class="conversation-time">${conv.timestamp}</span>
+                                <span class="conversation-name">${partnerName}</span>
+                                <span class="conversation-time">${timestamp}</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="conversation-preview">${conv.lastMessage}</span>
+                                <span class="conversation-preview">${lastMessage}</span>
                                 ${unreadBadge}
                             </div>
                         </div>
@@ -166,18 +170,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (msg.type === 'received') {
                     html += `
                         <div class="message-bubble message-received">
-                            <p>${msg.content}</p>
+                            <p>${escapeHtml(msg.content)}</p>
                         </div>
                     `;
                 } else {
-                    const statusIcon = msg.status === 'read' ? 
-                        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #4CAF50;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7M5 13l4 4L19 7" /></svg>' : 
+                    const statusIcon = msg.status === 'read' ?
+                        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #4CAF50;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7M5 13l4 4L19 7" /></svg>' :
                         '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>';
-                    
+
                     html += `
                         <div style="align-self: flex-end; display: flex; align-items: flex-end; gap: 0.5rem; max-width: 70%;">
                             <div class="message-bubble message-sent" style="max-width: 100%;">
-                                <p>${msg.content}</p>
+                                <p>${escapeHtml(msg.content)}</p>
                             </div>
                             <span class="message-status" style="margin-bottom: 0.5rem;">${statusIcon}</span>
                         </div>
@@ -214,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tempMsg.style.cssText = 'align-self: flex-end; display: flex; align-items: flex-end; gap: 0.5rem; max-width: 70%;';
                 tempMsg.innerHTML = `
                     <div class="message-bubble message-sent" style="opacity: 0.7; max-width: 100%;">
-                        <p>${content}</p>
+                        <p>${escapeHtml(content)}</p>
                     </div>
                     <span class="message-status" style="margin-bottom: 0.5rem;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>

@@ -1,0 +1,10 @@
+[build]
+  # Netlify serves the static HTML/JS/CSS preview from the src/ folder.
+  # PHP files under src/api/ and src/php/ are NOT executed on Netlify;
+  # they are present only as source code and will be served as plain text if accessed.
+  publish = "src"
+
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200

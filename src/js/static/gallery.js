@@ -6,12 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let allArtworks = [];
 
-    function getApiBase() {
-        return window.location.pathname.toLowerCase().includes('/php/') ? '../api/' : 'api/';
-    }
-
     // Fetch artworks
-    fetch(getApiBase() + 'api_get_artworks.php')
+    fetch('js/data/artworks.json')
         .then(response => response.json())
         .then(data => {
             allArtworks = data;
@@ -58,34 +54,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         galleryGrid.innerHTML = artworks.map((art, index) => {
             const isFeatured = index === 0 ? '<span class="badge">Featured</span>' : '';
-            const id = escapeHtml(art.id);
-            const title = escapeHtml(art.title);
-            const category = escapeHtml(art.category);
-            const artisanName = escapeHtml(art.artisanName);
-            const kudosCount = escapeHtml(art.kudos && art.kudos.count !== undefined ? art.kudos.count : 0);
+            const price = art.price ? `<span class="text-sm font-bold text-terracotta">${escapeHtml(art.price)}</span>` : '';
             return `
-                <article class="artwork-card" data-category="${category}">
-                    <a href="php/artwork_detail.php?id=${id}">
+                <article class="artwork-card" data-category="${escapeHtml(art.category)}">
+                    <a href="html/artwork_detail.html?id=${encodeURIComponent(art.id)}">
                         <div class="artwork-img-box">
                             ${isFeatured}
-                            <img src="${art.image}" alt="${title}" loading="lazy">
+                            <img src="${art.image}" alt="${escapeHtml(art.title)}" loading="lazy">
                         </div>
                         <div class="artwork-content">
-                            <h3 class="artwork-title">${title}</h3>
+                            <h3 class="artwork-title">${escapeHtml(art.title)}</h3>
                             <p class="artwork-artisan">
                                 <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                                 </svg>
-                                ${artisanName}
+                                ${escapeHtml(art.artisanName)}
                             </p>
-                            <div class="artwork-footer" style="justify-content: flex-end;">
-                                <button class="kudos-btn" aria-label="Give Kudos" data-id="${id}" onclick="event.preventDefault(); toggleKudos('${id}', this)">
+                            <div class="artwork-footer" style="justify-content: space-between;">
+                                ${price}
+                                <button class="kudos-btn" aria-label="Give Kudos" data-id="${escapeHtml(art.id)}" onclick="event.preventDefault(); toggleKudos('${escapeHtml(art.id)}', this)">
                                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
                                         </path>
                                     </svg>
-                                    <span class="kudos-count">${kudosCount}</span>
+                                    <span class="kudos-count">${escapeHtml(art.kudos.count)}</span>
                                 </button>
                             </div>
                         </div>
@@ -105,64 +98,43 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Function to handle kudos clicks directly from the gallery feed
-window.toggleKudos = async function(artworkId, btnElement) {
-    const auth = window.fannenAuth;
-    if (!auth || !auth.isLoggedIn) {
-        alert('Please sign in to give kudos.');
-        window.location.href = isLevel2() ? 'signin.php' : 'php/signin.php';
-        return;
-    }
-
+window.toggleKudos = function(artworkId, btnElement) {
+    let history = JSON.parse(localStorage.getItem('fannen_kudos_history') || '[]');
     const countSpan = btnElement.querySelector('.kudos-count');
-    const wasActive = btnElement.classList.contains('active');
-
-    // Optimistic UI update
-    let currentCount = parseInt(countSpan.textContent) || 0;
-    countSpan.textContent = Math.max(0, currentCount + (wasActive ? -1 : 1));
-    setKudosButtonState(btnElement, !wasActive);
-
-    try {
-        const response = await fetch(getApiBase() + 'api_kudos.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `artwork_id=${encodeURIComponent(artworkId)}&badge_type=love`
-        });
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            // Revert on failure
-            countSpan.textContent = currentCount;
-            setKudosButtonState(btnElement, wasActive);
-            alert(data.error || 'Failed to update kudos');
-            return;
-        }
-
-        // Confirm with server totals
-        countSpan.textContent = data.count;
-        setKudosButtonState(btnElement, data.isActive);
-    } catch (err) {
-        console.error('Kudos error:', err);
-        countSpan.textContent = currentCount;
-        setKudosButtonState(btnElement, wasActive);
-        alert('Network error. Please try again.');
-    }
-};
-
-function setKudosButtonState(btnElement, isActive) {
-    if (isActive) {
+    let count = parseInt(countSpan.textContent);
+    
+    if (history.includes(artworkId)) {
+        // Remove kudos
+        history = history.filter(id => id !== artworkId);
+        btnElement.classList.remove('active');
+        // Simple style to indicate active state for now
+        btnElement.style.color = '';
+        btnElement.style.background = '';
+        count--;
+    } else {
+        // Add kudos
+        history.push(artworkId);
         btnElement.classList.add('active');
         btnElement.style.color = '#fff';
         btnElement.style.background = 'var(--color-terracotta)';
         btnElement.style.borderColor = 'var(--color-terracotta)';
-    } else {
-        btnElement.classList.remove('active');
-        btnElement.style.color = '';
-        btnElement.style.background = '';
-        btnElement.style.borderColor = '';
+        count++;
     }
-}
+    
+    countSpan.textContent = count;
+    localStorage.setItem('fannen_kudos_history', JSON.stringify(history));
+};
 
 function updateKudosUI() {
-    // renderGallery() already applies the active state from the API response,
-    // so this helper is kept only as a fallback/reset hook.
+    const history = JSON.parse(localStorage.getItem('fannen_kudos_history') || '[]');
+    const btns = document.querySelectorAll('.kudos-btn');
+    btns.forEach(btn => {
+        const id = btn.getAttribute('data-id');
+        if (history.includes(id)) {
+            btn.classList.add('active');
+            btn.style.color = '#fff';
+            btn.style.background = 'var(--color-terracotta)';
+            btn.style.borderColor = 'var(--color-terracotta)';
+        }
+    });
 }

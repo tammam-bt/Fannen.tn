@@ -74,10 +74,34 @@ document.addEventListener('DOMContentLoaded', () => {
             // Split description into paragraphs if it has newlines, or just one p
             const paragraphs = art.description.split('\n').filter(p => p.trim() !== '');
             if (paragraphs.length > 0) {
-                descContainer.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+                descContainer.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
             } else {
-                descContainer.innerHTML = `<p>${art.description}</p>`;
+                descContainer.innerHTML = `<p>${escapeHtml(art.description)}</p>`;
             }
+        }
+
+        // Render kudos badges with real counts and active state from the API
+        const kudosItems = document.querySelectorAll('.kudos-badge-item');
+        kudosItems.forEach(item => {
+            const badgeType = item.dataset.badgeType;
+            if (!badgeType) return;
+            const count = art.kudos && art.kudos.badges ? (art.kudos.badges[badgeType] || 0) : 0;
+            const isActive = art.kudos && art.kudos.myBadges ? art.kudos.myBadges.includes(badgeType) : false;
+            item.querySelector('span').textContent = count;
+            setKudosBadgeState(item, isActive);
+        });
+
+        // Follow button
+        const followBtn = document.getElementById('btn-follow');
+        if (followBtn) {
+            followBtn.dataset.artisanId = art.artisanId;
+            setFollowButtonState(followBtn, art.isFollowing);
+        }
+
+        // Save button
+        const saveBtn = document.getElementById('btn-save-artwork');
+        if (saveBtn) {
+            setSaveButtonState(saveBtn, art.isSaved);
         }
     }
 
@@ -135,10 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     <form id="inquiry-form" class="modal-body">
                         <div style="background: var(--color-bg); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
-                            <img id="modal-art-img" src="${currentArtwork ? currentArtwork.image : ''}" alt="Artwork Thumbnail" style="width: 60px; height: 60px; object-fit: cover; border-radius: var(--radius-sm);">
+                            <img id="modal-art-img" src="${currentArtwork ? escapeHtml(currentArtwork.image) : ''}" alt="Artwork Thumbnail" style="width: 60px; height: 60px; object-fit: cover; border-radius: var(--radius-sm);">
                             <div>
-                                <div class="font-bold text-sm" id="modal-art-title">${currentArtwork ? currentArtwork.title : ''}</div>
-                                <div class="text-xs text-text-light" id="modal-art-artisan">by ${currentArtwork ? currentArtwork.artisanName : ''}</div>
+                                <div class="font-bold text-sm" id="modal-art-title">${currentArtwork ? escapeHtml(currentArtwork.title) : ''}</div>
+                                <div class="text-xs text-text-light" id="modal-art-artisan">by ${currentArtwork ? escapeHtml(currentArtwork.artisanName) : ''}</div>
                             </div>
                         </div>
 
@@ -194,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     </svg>
                                 </div>
                                 <h2 class="font-heading" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Message Sent!</h2>
-                                <p class="text-sm" style="margin-bottom: 2rem;">${currentArtwork.artisanName} will review your inquiry and get back to you soon.</p>
+                                <p class="text-sm" style="margin-bottom: 2rem;">${escapeHtml(currentArtwork.artisanName)} will review your inquiry and get back to you soon.</p>
                                 <a href="inbox.php" class="btn btn-primary">Go to Inbox</a>
                                 <button class="btn btn-ghost" onclick="document.querySelector('.modal-overlay').remove(); modal=null;" style="display: block; margin: 1rem auto 0;">Continue Browsing</button>
                             </div>
@@ -229,43 +253,169 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Follow Button Logic
-    const followBtn = document.querySelector('.artisan-profile-card .btn-outline');
+    const followBtn = document.getElementById('btn-follow');
     if (followBtn) {
-        let isFollowing = false;
-        followBtn.addEventListener('click', () => {
-            isFollowing = !isFollowing;
-            if (isFollowing) {
-                followBtn.textContent = 'Following';
-                followBtn.classList.remove('btn-outline');
-                followBtn.classList.add('btn-primary');
-            } else {
-                followBtn.textContent = 'Follow';
-                followBtn.classList.remove('btn-primary');
-                followBtn.classList.add('btn-outline');
-            }
-        });
+        followBtn.addEventListener('click', () => toggleFollow(followBtn));
+    }
+
+    // Save Button Logic
+    const saveBtn = document.getElementById('btn-save-artwork');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => toggleSave(saveBtn));
     }
 
     // Kudos Logic
     const kudosItems = document.querySelectorAll('.kudos-badge-item');
     kudosItems.forEach(item => {
-        item.style.cursor = 'pointer'; // ensure it looks clickable
-        item.addEventListener('click', () => {
-            const countSpan = item.querySelector('span');
-            let count = parseInt(countSpan.textContent);
-            
-            if (item.classList.contains('active')) {
-                item.classList.remove('active');
-                item.style.color = '';
-                item.style.background = '';
-                countSpan.textContent = count - 1;
-            } else {
-                item.classList.add('active');
-                item.style.color = '#fff';
-                item.style.background = 'var(--color-terracotta)';
-                item.style.borderColor = 'var(--color-terracotta)';
-                countSpan.textContent = count + 1;
-            }
-        });
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', () => toggleKudosBadge(item));
     });
+
+    async function requireAuth() {
+        let auth = window.fannenAuth;
+        if (!auth) {
+            try {
+                const res = await fetch(getApiBase() + 'auth_handler.php?action=check');
+                auth = await res.json();
+                window.fannenAuth = auth;
+            } catch {
+                auth = { isLoggedIn: false };
+                window.fannenAuth = auth;
+            }
+        }
+        if (!auth.isLoggedIn) {
+            alert('Please sign in to use this feature.');
+            window.location.href = 'signin.php';
+            return false;
+        }
+        return true;
+    }
+
+    async function toggleFollow(btn) {
+        if (!await requireAuth()) return;
+        const artisanId = btn.dataset.artisanId;
+        if (!artisanId) return;
+        const wasFollowing = btn.dataset.following === 'true';
+
+        setFollowButtonState(btn, !wasFollowing);
+
+        try {
+            const res = await fetch(getApiBase() + 'api_follow.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `artisan_id=${encodeURIComponent(artisanId)}`
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                setFollowButtonState(btn, wasFollowing);
+                alert(data.error || 'Failed to update follow');
+                return;
+            }
+            setFollowButtonState(btn, data.isFollowing);
+        } catch (err) {
+            console.error('Follow error:', err);
+            setFollowButtonState(btn, wasFollowing);
+            alert('Network error');
+        }
+    }
+
+    function setFollowButtonState(btn, isFollowing) {
+        btn.dataset.following = isFollowing ? 'true' : 'false';
+        btn.textContent = isFollowing ? 'Following' : 'Follow';
+        if (isFollowing) {
+            btn.classList.remove('btn-outline');
+            btn.classList.add('btn-primary');
+        } else {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-outline');
+        }
+    }
+
+    async function toggleSave(btn) {
+        if (!await requireAuth()) return;
+        if (!currentArtwork) return;
+        const wasSaved = btn.dataset.saved === 'true';
+
+        setSaveButtonState(btn, !wasSaved);
+
+        try {
+            const res = await fetch(getApiBase() + 'api_save_artwork.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `artwork_id=${encodeURIComponent(currentArtwork.id)}`
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                setSaveButtonState(btn, wasSaved);
+                alert(data.error || 'Failed to update save');
+                return;
+            }
+            setSaveButtonState(btn, data.isSaved);
+        } catch (err) {
+            console.error('Save error:', err);
+            setSaveButtonState(btn, wasSaved);
+            alert('Network error');
+        }
+    }
+
+    function setSaveButtonState(btn, isSaved) {
+        btn.dataset.saved = isSaved ? 'true' : 'false';
+        const text = btn.querySelector('#btn-save-text');
+        if (text) text.textContent = isSaved ? 'Saved' : 'Save for Later';
+        if (isSaved) {
+            btn.classList.remove('btn-outline');
+            btn.classList.add('btn-primary');
+        } else {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-outline');
+        }
+    }
+
+    async function toggleKudosBadge(item) {
+        if (!await requireAuth()) return;
+        const badgeType = item.dataset.badgeType;
+        if (!badgeType || !currentArtwork) return;
+        const countSpan = item.querySelector('span');
+        const wasActive = item.classList.contains('active');
+        const currentCount = parseInt(countSpan.textContent) || 0;
+
+        setKudosBadgeState(item, !wasActive);
+        countSpan.textContent = Math.max(0, currentCount + (wasActive ? -1 : 1));
+
+        try {
+            const res = await fetch(getApiBase() + 'api_kudos.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `artwork_id=${encodeURIComponent(currentArtwork.id)}&badge_type=${encodeURIComponent(badgeType)}`
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                setKudosBadgeState(item, wasActive);
+                countSpan.textContent = currentCount;
+                alert(data.error || 'Failed to update kudos');
+                return;
+            }
+            countSpan.textContent = data.badgeCount;
+            setKudosBadgeState(item, data.isActive);
+        } catch (err) {
+            console.error('Kudos badge error:', err);
+            setKudosBadgeState(item, wasActive);
+            countSpan.textContent = currentCount;
+            alert('Network error');
+        }
+    }
+
+    function setKudosBadgeState(item, isActive) {
+        if (isActive) {
+            item.classList.add('active');
+            item.style.color = '#fff';
+            item.style.background = 'var(--color-terracotta)';
+            item.style.borderColor = 'var(--color-terracotta)';
+        } else {
+            item.classList.remove('active');
+            item.style.color = '';
+            item.style.background = '';
+            item.style.borderColor = '';
+        }
+    }
 });

@@ -4,18 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function isLevel2() {
-    return window.location.pathname.toLowerCase().includes('/php/');
+    return window.location.pathname.toLowerCase().includes('/html/');
 }
 
-// Build the correct API base path depending on current page level
-function getApiBase() {
-    return isLevel2() ? '../api/' : 'api/';
-}
-
-// Escapes HTML special characters before inserting untrusted/user-supplied text
-// (message content, artwork titles, names, etc.) via innerHTML/template literals.
-// Shared globally the same way as the other helpers on this page (no module system —
-// every js/components/*.js file is loaded via a plain <script> tag after this one).
+// Escapes HTML special characters before inserting untrusted text into the DOM
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -27,44 +19,32 @@ function escapeHtml(str) {
 }
 
 function initNavbar() {
-    // Check session via PHP API and expose the result so component scripts can read it
-    fetch(getApiBase() + 'auth_handler.php?action=check')
-        .then(res => res.json())
-        .then(authState => {
-            window.fannenAuth = authState;
-            updateNavLinks(authState);
-        })
-        .catch(() => {
-            // If fetch fails, treat as logged out
-            const authState = { isLoggedIn: false };
-            window.fannenAuth = authState;
-            updateNavLinks(authState);
-        });
-}
+    const authStateStr = localStorage.getItem('fannen_auth_state');
+    const authState = authStateStr ? JSON.parse(authStateStr) : { isLoggedIn: false };
 
-function updateNavLinks(authState) {
     const nav = document.querySelector('.navbar-nav');
     if (!nav) return;
 
+    // Find links by href or text to be more robust
     const links = Array.from(nav.querySelectorAll('a'));
     const loginLink = links.find(a => 
         a.textContent.includes('Login') || 
         a.textContent.includes('Connexion') || 
         a.textContent.includes('Profile') || 
         a.textContent.includes('Dashboard') ||
-        a.href.includes('signin.php')
+        a.href.includes('signin.html')
     );
     const joinLink = links.find(a => 
         a.textContent.includes('Join') || 
         a.textContent.includes('S\'inscrire') || 
         a.textContent.includes('Logout') ||
-        a.href.includes('register.php')
+        a.href.includes('register.html')
     );
 
     if (authState.isLoggedIn) {
         if (loginLink) {
             loginLink.textContent = authState.role === 'artisan' ? 'Dashboard' : 'Profile';
-            loginLink.href = isLevel2() ? 'dashboard.php' : 'php/dashboard.php';
+            loginLink.href = isLevel2() ? 'dashboard.html' : 'html/dashboard.html';
         }
         
         if (joinLink) {
@@ -73,24 +53,24 @@ function updateNavLinks(authState) {
             joinLink.classList.add('btn-outline');
             joinLink.href = '#';
             
+            // Remove existing listener if any and add new one
             joinLink.onclick = (e) => {
                 e.preventDefault();
-                fetch(getApiBase() + 'auth_handler.php?action=logout')
-                    .then(() => {
-                        window.location.href = isLevel2() ? '../index.php' : 'index.php';
-                    });
+                localStorage.removeItem('fannen_auth_state');
+                window.location.href = isLevel2() ? '../index.html' : 'index.html';
             };
         }
     } else {
+        // Ensure links are correct for logged out state if they were previously modified
         if (loginLink && (loginLink.textContent === 'Profile' || loginLink.textContent === 'Dashboard')) {
             loginLink.textContent = 'Login';
-            loginLink.href = isLevel2() ? 'signin.php' : 'php/signin.php';
+            loginLink.href = isLevel2() ? 'signin.html' : 'html/signin.html';
         }
         if (joinLink && joinLink.textContent === 'Logout') {
             joinLink.textContent = 'Join Fannen';
             joinLink.classList.add('btn-primary');
             joinLink.classList.remove('btn-outline');
-            joinLink.href = isLevel2() ? 'register.php' : 'php/register.php';
+            joinLink.href = isLevel2() ? 'register.html' : 'html/register.html';
             joinLink.onclick = null;
         }
     }
@@ -101,7 +81,7 @@ function initImageFallbacks() {
     images.forEach(img => {
         img.addEventListener('error', function() {
             this.src = isLevel2() ? '../../Resources/img/placeholder.svg' : '../Resources/img/placeholder.svg';
-            this.onerror = null;
+            this.onerror = null; // Prevent infinite loops
         });
     });
 }
@@ -138,6 +118,7 @@ notifBtns.forEach(btn => {
                 </div>
             `;
             
+            // Need to append it to something relative, or just absolute on body
             document.body.appendChild(popup);
             
             document.addEventListener('click', () => {

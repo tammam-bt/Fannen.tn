@@ -1,3 +1,12 @@
+<?php
+require_once __DIR__ . '/../api/config.php';
+
+// Server-side session guard: dashboard is protected for logged-in users only
+if (!isset($_SESSION['user_id'])) {
+    header('Location: signin.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -126,8 +135,8 @@
                             </div>
                             <div>
                                 <p class="text-sm font-bold" style="text-transform: uppercase;">Total Kudos</p>
-                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-charcoal);">1,482 <span
-                                        class="text-sm text-text-light" style="font-weight: 400;">+12% this month</span></p>
+                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-charcoal);"><span id="stat-total-kudos">0</span> <span
+                                        class="text-sm text-text-light" style="font-weight: 400;">across all works</span></p>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -142,9 +151,8 @@
                             </div>
                             <div>
                                 <p class="text-sm font-bold" style="text-transform: uppercase;">Total Views</p>
-                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-charcoal);">12.5k <span
-                                        class="text-sm text-text-light" style="font-weight: 400;">+5.2% from last
-                                        week</span></p>
+                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-charcoal);"><span id="stat-total-views">0</span> <span
+                                        class="text-sm text-text-light" style="font-weight: 400;">across all works</span></p>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -157,7 +165,7 @@
                             </div>
                             <div>
                                 <p class="text-sm font-bold" style="text-transform: uppercase;">Pending Inquiries</p>
-                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-charcoal);">7</p>
+                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-charcoal);"><span id="stat-pending-inquiries">0</span></p>
                             </div>
                         </div>
                     </div>
@@ -219,27 +227,10 @@
                 <div class="role-enthusiast-only">
                     <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
                         <h2 class="font-bold text-lg">Saved Artworks</h2>
-                        <a href="#" class="text-link">View All</a>
+                        <a href="../index.php" class="text-link">Discover more</a>
                     </div>
-                    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                        <div class="artwork-card">
-                            <div class="artwork-img-box" style="aspect-ratio: 1;">
-                                <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&q=80" alt="Saved Item">
-                            </div>
-                            <div class="artwork-content" style="padding: 1rem;">
-                                <h3 class="font-bold text-sm">Handwoven Berber Rug</h3>
-                                <p class="text-sm text-text-light">by Fatima Zara</p>
-                            </div>
-                        </div>
-                        <div class="artwork-card">
-                            <div class="artwork-img-box" style="aspect-ratio: 1;">
-                                <img src="https://images.unsplash.com/photo-1631125915902-d8abe9225ff2?q=80&w=400" alt="Saved Item">
-                            </div>
-                            <div class="artwork-content" style="padding: 1rem;">
-                                <h3 class="font-bold text-sm">Cerulean Oasis Vase</h3>
-                                <p class="text-sm text-text-light">by Ahmed de Nabeul</p>
-                            </div>
-                        </div>
+                    <div class="grid" id="saved-artworks-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <!-- Populated by dashboard.js -->
                     </div>
                 </div>
 
@@ -247,23 +238,10 @@
                 <div class="role-enthusiast-only">
                     <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
                         <h2 class="font-bold text-lg">Following Artisans</h2>
-                        <a href="#" class="text-link">View All</a>
+                        <a href="../index.php" class="text-link">Discover more</a>
                     </div>
-                    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                        <div class="stat-card" style="padding: 1rem; border-radius: var(--radius-full);">
-                            <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=100&q=80" alt="Artisan" class="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
-                            <div>
-                                <p class="font-bold text-sm">Ahmed de Nabeul</p>
-                                <p class="text-sm text-text-light">Master Ceramist</p>
-                            </div>
-                        </div>
-                        <div class="stat-card" style="padding: 1rem; border-radius: var(--radius-full);">
-                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80" alt="Artisan" class="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
-                            <div>
-                                <p class="font-bold text-sm">Fatima Zara</p>
-                                <p class="text-sm text-text-light">Textile Weaver</p>
-                            </div>
-                        </div>
+                    <div class="grid" id="following-artisans-grid" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <!-- Populated by dashboard.js -->
                     </div>
                 </div>
 
@@ -272,16 +250,8 @@
                     <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
                         <h2 class="font-bold text-lg">Interaction History</h2>
                     </div>
-                    <div class="data-table-container" style="margin-bottom: 2rem;">
-                        <div class="conversation-item" style="border-bottom: none;">
-                            <div class="stat-icon" style="background: var(--color-sand-dark); color: var(--color-charcoal); border-radius: 50%;">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                            </div>
-                            <div>
-                                <p class="font-bold text-sm">Inquiry sent to Ahmed de Nabeul</p>
-                                <p class="text-sm text-text-light">"Is the Cerulean Oasis Vase still available for shipping?" <span style="margin-left: 0.5rem; font-size: 0.75rem;">2 days ago</span></p>
-                            </div>
-                        </div>
+                    <div class="data-table-container" id="interaction-history-list" style="margin-bottom: 2rem;">
+                        <!-- Populated by dashboard.js -->
                     </div>
                 </div>
             </div>

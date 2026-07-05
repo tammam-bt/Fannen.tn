@@ -12,39 +12,39 @@
 
 ---
 
-> 🛠️ **Current Status**: The project is fully implemented (Phase 3 complete). It features a Native PHP REST API backend connected to a MySQL database using PDO. The frontend uses Vanilla JS to interface with the backend APIs for dynamic gallery rendering, authentication, profile management, and real-time messaging.
+> 🛠️ **Current Status**: The project is fully implemented (Phase 3 complete). It features a Native PHP REST API backend connected to a MySQL database using PDO. The frontend uses Vanilla JS to interface with the backend APIs for dynamic gallery rendering, authentication, profile management, real-time messaging, persisted Kudos, Follow/Save, and live dashboard analytics. A separate static UI preview is maintained for Netlify deployment.
 
 ## 📸 Visual Showcase
 
-Explore the design and user journey envisioned for Fannen.tn through these high-fidelity mockups created during the design phase:
+Fannen.tn is fully implemented — here's a tour of the user journey across the live application:
 
-### 🏠 **Global Feed (index.html)**
-*Mockup placeholder: Index page showing masonry grid of artisan works*
+### 🏠 **Global Feed (index.php)**
+*Screenshot placeholder: Index page showing masonry grid of artisan works*
 
 The homepage serves as the global discovery feed, utilizing a masonry-style grid to display uploaded artworks. It features visual category filter buttons that allow users to dynamic filter the feed (e.g., viewing only "Ceramics") without reloading the page.
 
 ### 🛡️ **Authentication (signin.php & register.php)**
-*Mockup placeholder: Split-screen login/register form with role selection*
+*Screenshot placeholder: Split-screen login/register form with role selection*
 
 Authentication is split into two dedicated pages with a premium 50/50 split-screen layout. **Sign In** provides email, password, and role selection. **Register** collects full profile details (name, username, age, phone, email, password, role). Users are redirected based on their role — Artisans go to the Dashboard, Enthusiasts go to the Homepage.
 
 ### ⭐ **Artwork Showcase (artwork_detail.php)**
-*Mockup placeholder: Detailed view with large image, description, and Kudos badges*
+*Screenshot placeholder: Detailed view with large image, description, and Kudos badges*
 
-This page provides a detailed view of a specific craft, featuring a large high-resolution image, detailed description, and an artisan profile snippet. It serves as the hub for interaction, hosting the unique "Kudos" badge system and the primary "Contact Artisan" button.
+This page provides a detailed view of a specific craft, featuring a large high-resolution image, detailed description, and an artisan profile snippet. It serves as the hub for interaction, hosting the unique "Kudos" badge system and the primary "Send an Inquiry" button.
 
 ### 💰 **Kudos & Messaging Flow**
-*Mockup placeholder: Close-up of Kudos badges and the messaging modal interface*
+*Screenshot placeholder: Close-up of Kudos badges and the messaging modal interface*
 
-Fannen.tn replaces numerical ratings with specific appreciation badges (e.g., "Incredible Technique", "Creative Idea"). Users can also click "Contact Artisan" to open a messaging form regarding a specific artwork, facilitating direct inquiries.
+Fannen.tn replaces numerical ratings with specific appreciation badges (e.g., "Incredible Technique", "Creative Idea"). Kudos, Follows, and Saved artworks are persisted in the MySQL database per user. Users can also click "Send an Inquiry" to open a messaging form regarding a specific artwork, facilitating direct inquiries.
 
 ### 📋 **Role-Based Dashboard (dashboard.php)**
-*Mockup placeholder: Artisan backend view with upload form and active listings*
+*Screenshot placeholder: Artisan backend view with upload form and active listings*
 
-The dashboard dynamically adapts based on the user's role. **Artisans** see analytics stats (Kudos, Views, Inquiries), a drag-and-drop upload zone, and a portfolio management table. **Enthusiasts** see their profile details, saved/favorite artworks, followed artisans, and interaction history. Both roles share a profile card with inline edit functionality. Sidebar links update dynamically: "Dashboard" + "Messaging" for artisans, "Profile" + "Messaging" for enthusiasts.
+The dashboard dynamically adapts based on the user's role. **Artisans** see live analytics stats (Total Kudos, Total Views, Pending Inquiries), a drag-and-drop upload zone, and a portfolio management table. **Enthusiasts** see their profile details, saved/favorite artworks, followed artisans, and interaction history, all fetched from the database. Both roles share a profile card with inline edit functionality. Sidebar links update dynamically: "Dashboard" + "Messaging" for artisans, "Profile" + "Messaging" for enthusiasts.
 
 ### 🔍 **Messaging Inbox (inbox.php)**
-*Mockup placeholder: Two-pane communication hub layout*
+*Screenshot placeholder: Two-pane communication hub layout*
 
 The communication hub utilizes a classic two-pane layout: a conversation list on the left and the active message thread on the right, displaying inquiries linked to specific artworks.
 
@@ -52,17 +52,21 @@ The communication hub utilizes a classic two-pane layout: a conversation list on
 
 - 👥 **Role-Based Dashboard Rendering** — The dashboard dynamically shows/hides sections using `.role-artisan-only` and `.role-enthusiast-only` wrapper classes, toggled via the `.hidden-role` CSS utility.
 
-- 🔐 **Split Authentication Flow** — Dedicated Sign In and Registration pages with full profile data capture on registration, persisted via `localStorage`.
+- 🔐 **Split Authentication Flow** — Dedicated Sign In and Registration pages with full profile data capture on registration, persisted server-side via native PHP `$_SESSION` and a MySQL `users` table (password hashed with `password_hash()`).
 
-- 🖼️ **Portfolio CRUD** — Artisans can manage their digital portfolio with drag-and-drop upload, categorization, and a data table with edit/delete actions.
+- 🖼️ **Portfolio CRUD** — Artisans can manage their digital portfolio with drag-and-drop upload, categorization, and a data table with edit/delete actions, backed by the `api_upload_artwork.php` / `api_delete_artwork.php` endpoints.
 
-- 👤 **Profile Management** — Editable profile card shared by both roles, with inline toggle between display and edit modes that persists changes to `localStorage`.
+- 👤 **Profile Management** — Editable profile card shared by both roles, with inline toggle between display and edit modes that persists changes to the database via the `api_update_profile.php` endpoint.
 
-- ⭐ **Asynchronous "Kudos" System** — A positive social reinforcement mechanism utilizing specific appreciation badges instead of 1-5 star ratings.
+- ⭐ **Persisted "Kudos" System** — A positive social reinforcement mechanism with multiple appreciation badges (technique, love, creative, inspiring) stored per user/artwork in MySQL.
+
+- 💾 **Follow & Save Artworks** — Enthusiasts can follow artisans and save artworks to a personal favorites list, persisted in the database.
+
+- 📊 **Live Dashboard Analytics** — Artisan dashboard shows real-time totals for Kudos, Views, and Pending Inquiries; enthusiast dashboard shows saved artworks, followed artisans, and interaction history.
 
 - 💬 **Direct Messaging (Inquiry System)** — Private communication channel allowing users to send direct inquiries to Artisans regarding specific artworks.
 
-- 🌀 **Dynamic Gallery** — A masonry-style grid feed with live category filtering via JS DOM manipulation, powered by `artworks.json` data.
+- 🌀 **Dynamic Gallery** — A masonry-style grid feed with live category filtering via JS DOM manipulation, powered by the `api_get_artworks.php` endpoint (MySQL-backed).
 
 ## 🛠️ Tech Stack (Strict Constraints)
 
@@ -78,37 +82,53 @@ This project strictly adheres to a foundational web development stack to demonst
 
 ## 🌟 Try It Out!
 
-As this is an academic project currently focused on frontend structure and design, a live interactive demo is not yet available. However, you can explore the design language and intended structure:
+Fannen.tn is fully implemented, backend included. The best way to experience it is to run the real PHP + MySQL application locally — it only takes a few minutes.
 
-### 🚀 Option 1: Explore the live demo (Recommended)
-**Explore the envisioned user interface immediately!**
-
-- [![Visit Fannen.tn Design Gallery](https://img.shields.io/badge/Visit_Live_URL-D8603B?style=for-the-badge&logoColor=white)](https://roaring-cendol-b1e95b.netlify.app/src/index.html)
-
----
-
-### 🔧 Option 2: Run Frontend Locally
-**Explore the HTML/CSS structure on your local machine.**
+### 🚀 Option 1: Run the Full Application Locally (Recommended)
+**The real gallery, authentication, role-based dashboard, and live messaging — all backed by MySQL.**
 
 #### Prerequisites
+- A local PHP stack such as [XAMPP](https://www.apachefriends.org/), WAMP, or MAMP (PHP 8+, Apache, MySQL/MariaDB).
 - A modern web browser (Chrome, Firefox, Edge, Safari).
 
 #### Setup Instructions
 
-1. **Clone the repository**
-   ```bash
-   git clone [https://github.com/tammam-bt/fannen.tn.git](https://github.com/tammam-bt/fannen.tn.git)
-   cd fannen.tn
-   ```
-2. **Navigate to the source files**
-   ```bash
-   cd src
-   ```
-3. **Open index.html**
+1. **Install and start your PHP stack** (e.g., XAMPP), so that Apache and MySQL are both running.
 
-   Open `index.html` with a live server (e.g., VS Code Live Server extension) or double-click to open directly in your browser. You can navigate between pages using the header links.
+2. **Clone the repository into your server's web root** (`htdocs` for XAMPP, `www` for WAMP):
+   ```bash
+   cd /path/to/htdocs
+   git clone https://github.com/tammam-bt/Fannen.tn.git
+   ```
 
-**💡 Development Note**: The backend functionality (PHP/MySQL) has been successfully implemented, and the frontend connects to it via a set of RESTful APIs.
+3. **Run the one-time database setup script** by visiting it in your browser:
+   ```
+   http://localhost/Fannen.tn/src/api/setup_database.php
+   ```
+   This creates the `fannen_db` database, its tables (`users`, `artworks`, `messages`, `kudos`, `follows`, `saved_artworks`), and seeds a handful of demo artisans, an enthusiast, sample artworks, and sample messages.
+
+4. **Open the app:**
+   ```
+   http://localhost/Fannen.tn/src/index.php
+   ```
+
+5. **Log in with a seeded test account** (all seeded passwords are `fannen123`):
+
+   | Role | Email |
+   |------|-------|
+   | Artisan | `malek@fannen.tn` |
+   | Enthusiast | `ahmed@fannen.tn` |
+
+   Or register your own account via **Join Fannen**.
+
+---
+
+### 🖼️ Option 2: Preview the Static UI Only (No Setup Required)
+**A quick, backend-less look at the visual design language.**
+
+- [![Visit Fannen.tn Design Gallery](https://img.shields.io/badge/Visit_Static_Preview-D8603B?style=for-the-badge&logoColor=white)](https://roaring-cendol-b1e95b.netlify.app/src/index.html)
+
+> ⚠️ This Netlify deployment serves the static HTML/JS preview from `src/` (configured by `netlify.toml`). Netlify cannot run PHP or MySQL, so login, the live database-backed gallery, messaging, and persisted Kudos/Follow/Save do not work there. The static preview uses `localStorage` and sample JSON data for a UI-only experience. Use Option 1 above to try the real application.
 
 ### 📁 Project Structure
 Fannen.tn is organized with a clear separation between raw resources and the main application source code.
@@ -116,11 +136,13 @@ Fannen.tn is organized with a clear separation between raw resources and the mai
 📦 Fannen.tn/
 │
 ├── 🖼️ Resources/                      # Non-code assets
-│   ├── img/                           # Placeholder photos & design mockups
-│   └── logo/                          # Site & brand logos
+│   ├── img/                           # placeholder.svg + team headshots + uploaded artwork images
+│   ├── logo/                          # Site & brand logo (SVG)
+│   └── video/                         # Hero background video
 │
 ├── 💻 src/                            # Application Source Code
 │   ├── index.php                      # Global Feed / Discovery page (Level 1)
+│   ├── index.html                     # Static home page for the Netlify UI preview
 │   │
 │   ├── 📄 php/                        # Secondary PHP pages (Level 2)
 │   │   ├── signin.php                 # Sign In (split-screen layout)
@@ -130,35 +152,74 @@ Fannen.tn is organized with a clear separation between raw resources and the mai
 │   │   ├── inbox.php                  # Communication Hub
 │   │   └── our_story.php              # Our Story page
 │   │
+│   ├── 📄 html/                       # Static HTML pages for the Netlify UI preview
+│   │   ├── signin.html
+│   │   ├── register.html
+│   │   ├── artwork_detail.html
+│   │   ├── dashboard.html
+│   │   ├── inbox.html
+│   │   └── our_story.html
+│   │
 │   ├── 🎨 css/                        # Stylesheets
 │   │   └── styles.css                 # Centralized global styles (+.hidden-role utility)
 │   │
 │   ├── ⚡ js/                         # JavaScript Modules
-│   │   ├── main.js                    # Global UI (navbar auth state, image fallbacks)
-│   │   └── components/                # Page-specific logic
-│   │       ├── auth.js                # Sign in & registration handlers
-│   │       ├── gallery.js             # Gallery rendering & category filtering
-│   │       ├── dashboard.js           # Role-based rendering, profile management
-│   │       ├── inbox.js               # Messaging & conversation management
-│   │       └── interaction.js         # Artwork detail, kudos, inquiry modal
+│   │   ├── main.js                    # Global UI (navbar auth state via API, image fallbacks)
+│   │   ├── data/
+│   │   │   ├── team.json              # Static team roster for the Our Story page
+│   │   │   └── artworks.json          # Sample artwork data for the static preview
+│   │   ├── components/                # Live PHP-app page logic
+│   │   │   ├── auth.js
+│   │   │   ├── gallery.js
+│   │   │   ├── dashboard.js
+│   │   │   ├── inbox.js
+│   │   │   ├── interaction.js
+│   │   │   └── about.js
+│   │   └── static/                    # Self-contained JS for the Netlify preview
+│   │       ├── main.js
+│   │       ├── auth.js
+│   │       ├── gallery.js
+│   │       ├── dashboard.js
+│   │       ├── inbox.js
+│   │       ├── interaction.js
+│   │       └── about.js
 │   │
-│   └── 🔌 api/                        # PHP API Endpoints
-│       ├── config.php                 # Database connection
-│       ├── auth_handler.php           # Registration/Login
-│       └── setup_database.php         # Database migration & seeder
+│   └── 🔌 api/                        # PHP JSON API Endpoints
+│       ├── config.php                 # PDO database connection (fannen_db)
+│       ├── setup_database.php         # One-time DB creation, tables & seed data
+│       ├── auth_handler.php           # Register / Login / Logout / session check
+│       ├── api_get_artworks.php       # List artworks (supports ?category=, ?mine=1)
+│       ├── api_get_artwork.php        # Single artwork by ?id= (increments views)
+│       ├── api_upload_artwork.php     # Artisan artwork upload (multipart + image)
+│       ├── api_delete_artwork.php     # Artisan artwork deletion
+│       ├── api_get_profile.php        # Logged-in user's profile
+│       ├── api_update_profile.php     # Update logged-in user's profile
+│       ├── api_get_contacts.php       # Conversation list for the inbox
+│       ├── api_get_messages.php       # Messages exchanged with a given contact
+│       ├── api_send_message.php     # Send a message / inquiry
+│       ├── api_kudos.php              # Toggle Kudos badges per artwork
+│       ├── api_follow.php             # Toggle follow status for an artisan
+│       ├── api_save_artwork.php       # Toggle saved/favorite artwork
+│       ├── api_dashboard_stats.php    # Live dashboard stats (artisan + enthusiast)
+│       └── api_interactions.php       # Saved artworks, follows, interaction history
 │
-└── 📄 README.md                       # Project documentation
+├── netlify.toml                       # Static preview config (publish = src)
+└── 📄 readme.md                       # Project documentation
 ```
 ### 🔄 Current Workflow Overview
 **`index.php`** → `gallery.js` fetches from `api_get_artworks.php` → Renders masonry grid → Category filtering via event delegation
 
 **`signin.php / register.php`** → `auth.js` calls `auth_handler.php` → Redirects by role
 
-**`artwork_detail.php`** → `interaction.js` fetches artwork, handles Kudos badges & inquiry modal
+**`artwork_detail.php`** → `interaction.js` fetches `api_get_artwork.php` (which increments views) → Handles Kudos badges via `api_kudos.php`, Follow via `api_follow.php`, Save via `api_save_artwork.php`, and sends inquiries via `api_send_message.php`
 
-**`dashboard.php`** → `dashboard.js` calls `api_get_profile.php` and `api_get_artworks.php` → Renders profile data and portfolio table
+**`dashboard.php`** → `dashboard.js` calls `api_get_profile.php` / `api_update_profile.php` for the profile card, `api_get_artworks.php` / `api_upload_artwork.php` / `api_delete_artwork.php` for the artisan portfolio, and `api_dashboard_stats.php` / `api_interactions.php` for live stats and enthusiast sections
 
-**`inbox.php`** → `inbox.js` calls `api_get_contacts.php` + `api_get_messages.php` → Renders two-pane chat UI
+**`inbox.php`** → `inbox.js` calls `api_get_contacts.php` + `api_get_messages.php` (polled every few seconds) + `api_send_message.php` → Renders the two-pane chat UI
+
+**`our_story.php`** → `about.js` fetches the static `team.json` → Renders the team grid
+
+**`index.html` (Netlify preview)** → `js/static/gallery.js` fetches `js/data/artworks.json` and uses `localStorage` for auth state, kudos, and messaging mockups.
 
 ### 🚀 Skills Developed
 This project provides hands-on experience with:
@@ -169,7 +230,7 @@ This project provides hands-on experience with:
 
 **👥 Role-Based logic** — Structuring user journeys and page access based on distinct user roles.
 
-**🗃️ Normalized DB Design** — Planning relational SQL structures to handle users, artworks, kudos, and messages with integrity.
+**🗃️ Normalized DB Design** — Designing relational SQL structures to handle users, artworks, and messages with integrity.
 
 **⚡ Asynchronous UX** — Utilizing Fetch API implementations for features like live filtering and real-time social engagement connected to PHP APIs.
 
@@ -181,7 +242,7 @@ We'd love to hear from you! Fannen.tn is an open academic project, and community
 
 🐛 Report design inconsistencies or HTML/CSS bugs by opening an issue on GitHub
 
-💡 Suggest feature enhancements for future PHP/JS implementation through discussions
+💡 Suggest feature enhancements through discussions
 
 📖 Share your experience - let us know if you have tips for native PHP/JS development!
 
