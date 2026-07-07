@@ -1,0 +1,6 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Direct Googlebot and other crawlers to your sitemap
+Sitemap: https://fannentn.netlify.app/sitemap.xml
