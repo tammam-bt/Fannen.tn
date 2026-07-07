@@ -17,3 +17,24 @@
   for = "*.mp4"
   [headers.values]
     Content-Type = "video/mp4"
+
+# Force Netlify to recognize and serve robots.txt safely
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "no-cache"
+
+# Force Netlify to recognize and serve sitemap.xml safely
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "no-cache"
+
+# Ensure Google Verification HTML file bypasses caching engines
+[[headers]]
+  for = "/google*.html"
+  [headers.values]
+    Content-Type = "text/html; charset=utf-8"
+    Cache-Control = "no-cache"
