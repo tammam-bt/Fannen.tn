@@ -5,7 +5,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fannen.tn - Register</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="48x48">
+    <link rel="shortcut icon" type="image/png" href="/favicon.png" sizes="48x48">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="../../Resources/logo/logo.svg">
     <link rel="stylesheet" href="../css/styles.css">
+
+    <!-- Structured Data: Organization + WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://fannentn.netlify.app/#organization",
+          "name": "Fannen.tn",
+          "url": "https://fannentn.netlify.app/",
+          "logo": "https://fannentn.netlify.app/Resources/logo/logo.svg",
+          "description": "Digital gallery connecting global collectors with master Tunisian artisans of the Maghreb.",
+          "slogan": "Preserving the Sacred Hand-Craft of the Maghreb."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://fannentn.netlify.app/#website",
+          "url": "https://fannentn.netlify.app/",
+          "name": "Fannen.tn",
+          "publisher": { "@id": "https://fannentn.netlify.app/#organization" },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://fannentn.netlify.app/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 
 <body>
