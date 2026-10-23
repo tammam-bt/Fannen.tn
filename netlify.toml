@@ -2,11 +2,11 @@
   # Netlify publishes the src/ folder so the static preview URLs stay clean (e.g.,
   # /index.html). Before publishing, copy the Resources/ folder into src/ so the static
   # pages can reach assets via their existing ../Resources/ paths.
-  # PHP files are NOT executed on Netlify. src/api/ is deleted after the copy so its
-  # sources (including config.php) are not published; src/php/ and src/index.php are
-  # still published as plain text.
+  # PHP files are NOT executed on Netlify. src/api/, src/php/ and src/index.php are
+  # deleted after the copy so no PHP source (including config.php) is published; the
+  # static pages never reference them.
   publish = "src"
-  command = "rm -rf src/Resources && cp -R Resources src/Resources && rm -rf src/api"
+  command = "rm -rf src/Resources && cp -R Resources src/Resources && rm -rf src/api src/php src/index.php"
 
 [[redirects]]
   from = "/"
