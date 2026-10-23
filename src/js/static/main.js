@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     initNavbar();
+    initNavToggle();
     initImageFallbacks();
 });
 
@@ -16,6 +17,26 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+
+// Hamburger menu for phone widths (the button is hidden by CSS on desktop)
+function initNavToggle() {
+    const toggle = document.querySelector('.navbar-toggle');
+    if (!toggle) return;
+    const nav = document.getElementById(toggle.getAttribute('aria-controls'));
+    if (!nav) return;
+
+    const setOpen = (open) => {
+        toggle.setAttribute('aria-expanded', String(open));
+        nav.classList.toggle('is-open', open);
+    };
+
+    toggle.addEventListener('click', () => {
+        setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setOpen(false);
+    });
 }
 
 function initNavbar() {
